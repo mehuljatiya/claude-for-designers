@@ -15,7 +15,7 @@ export async function runSetup() {
   console.log("Let's get you set up. This takes about 2 minutes.\n")
 
   // ── Step 1: Claude Code ──────────────────────────────────────────────────
-  console.log(chalk.bold('Step 1/3') + ' — Claude Code')
+  console.log(chalk.bold('Step 1/4') + ' — Claude Code')
 
   const claudeInstalled = isClaudeInstalled()
 
@@ -51,7 +51,7 @@ export async function runSetup() {
   }
 
   // ── Step 2: Slash commands ───────────────────────────────────────────────
-  console.log(chalk.bold('Step 2/3') + ' — Installing design workflows')
+  console.log(chalk.bold('Step 2/4') + ' — Installing design workflows')
 
   const { installed, skipped } = installSlashCommands()
 
@@ -64,25 +64,73 @@ export async function runSetup() {
   }
   console.log()
 
-  // ── Step 3: API key reminder ─────────────────────────────────────────────
-  console.log(chalk.bold('Step 3/3') + ' — API key')
+  // ── Step 3: Figma MCP ────────────────────────────────────────────────────
+  console.log(chalk.bold('Step 3/4') + ' — Figma ' + chalk.dim('(optional)'))
+  console.log(chalk.dim('  Lets Claude read your Figma designs directly — no copy-pasting needed.\n'))
+
+  const wantsFigma = await confirm({
+    message: 'Connect Figma?',
+    default: true,
+  }).catch(() => false)
+
+  let figmaConnected = false
+
+  if (wantsFigma) {
+    const alreadyConfigured = isFigmaMcpConfigured()
+
+    if (alreadyConfigured) {
+      console.log(chalk.green('  ✓ Figma is already configured\n'))
+      figmaConnected = true
+    } else {
+      try {
+        execSync(
+          'claude mcp add --transport http figma https://mcp.figma.com/mcp --scope user',
+          { stdio: 'pipe' }
+        )
+        console.log(chalk.green('  ✓ Figma MCP configured'))
+        console.log(chalk.dim('  One more step: inside Claude, type /mcp → select figma → Authenticate'))
+        console.log(chalk.dim('  This connects your Figma account via OAuth (you\'ll only do this once)\n'))
+        figmaConnected = true
+      } catch {
+        console.log(chalk.yellow('  Could not auto-configure Figma.'))
+        console.log('  Run this manually after setup:')
+        console.log('  ' + chalk.cyan('claude mcp add --transport http figma https://mcp.figma.com/mcp --scope user'))
+        console.log()
+      }
+    }
+  } else {
+    console.log(chalk.dim('  Skipped. You can always add it later:\n'))
+    console.log(chalk.dim('  claude mcp add --transport http figma https://mcp.figma.com/mcp --scope user\n'))
+  }
+
+  // ── Step 4: API key ──────────────────────────────────────────────────────
+  console.log(chalk.bold('Step 4/4') + ' — API key')
 
   if (!claudeInstalled) {
-    console.log('  You\'ll need an Anthropic API key to use Claude.')
+    console.log('  You\'ll need a free Anthropic API key.')
     console.log('  Get one at: ' + chalk.cyan('https://console.anthropic.com'))
-    console.log('  When you run ' + chalk.cyan('claude') + ' for the first time, it will ask for it.\n')
+    console.log('  Claude will ask for it when you first run ' + chalk.cyan('claude') + '.\n')
   } else {
-    console.log(chalk.green('  ✓ Already configured (Claude Code handles this)\n'))
+    console.log(chalk.green('  ✓ Already configured\n'))
   }
 
   // ── Done ─────────────────────────────────────────────────────────────────
-  showNextSteps()
+  showNextSteps(figmaConnected)
 }
 
 function isClaudeInstalled() {
   try {
     execSync('which claude', { stdio: 'ignore' })
     return true
+  } catch {
+    return false
+  }
+}
+
+function isFigmaMcpConfigured() {
+  try {
+    const result = execSync('claude mcp list', { encoding: 'utf8', stdio: 'pipe' })
+    return result.toLowerCase().includes('figma')
   } catch {
     return false
   }
@@ -113,13 +161,21 @@ function installSlashCommands() {
   return { installed, skipped }
 }
 
-function showNextSteps() {
+function showNextSteps(figmaConnected) {
   console.log('─'.repeat(50))
   console.log(chalk.bold('\nYou\'re all set!\n'))
   console.log('To start:')
   console.log('  1. Open Terminal in your project folder')
-  console.log('  2. Type ' + chalk.cyan('design') + ' and press Enter\n')
-  console.log('Inside Claude, use these workflows:')
+  console.log('  2. Type ' + chalk.cyan('design') + ' and press Enter')
+
+  if (figmaConnected) {
+    console.log('  3. Inside Claude, type ' + chalk.cyan('/mcp') + ' → figma → Authenticate')
+    console.log('     (one-time step to connect your Figma account)\n')
+  } else {
+    console.log()
+  }
+
+  console.log('Available design workflows (type inside Claude):')
   console.log('  ' + chalk.cyan('/figma') + ' [url]        Pull a Figma design and build it')
   console.log('  ' + chalk.cyan('/new-component') + '      Start a new component from scratch')
   console.log('  ' + chalk.cyan('/document') + '           Write docs for a component')

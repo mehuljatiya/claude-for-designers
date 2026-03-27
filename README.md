@@ -38,7 +38,8 @@ npx claude-for-designers setup
 This will:
 1. Check if Claude Code is installed — offer to install it if not
 2. Install the 6 design workflows to `~/.claude/commands/`
-3. Walk you through getting an API key (first time only)
+3. Optionally configure Figma MCP (connects via OAuth — no token needed)
+4. Remind you to get an Anthropic API key if needed (free to start)
 
 ---
 
@@ -68,11 +69,25 @@ Once inside Claude, just type a slash command:
 
 ---
 
+## Figma
+
+The `/figma` command needs Figma MCP configured. The setup wizard handles this automatically.
+
+If you skipped it during setup, run:
+
+```bash
+claude mcp add --transport http figma https://mcp.figma.com/mcp --scope user
+```
+
+Then inside Claude, type `/mcp` → select **figma** → **Authenticate** — this is a one-time OAuth login.
+
+---
+
 ## Requirements
 
 - Node.js 20+
 - An [Anthropic API key](https://console.anthropic.com) (free to start)
-- For `/figma`: a [Figma personal access token](https://www.figma.com/settings) + the [Figma MCP server](https://www.figma.com/plugin-docs/mcp/) configured
+- For `/figma`: Figma MCP (configured by setup, or manually above)
 
 ---
 
