@@ -1,0 +1,40 @@
+{
+  "name": "claude-for-designers",
+  "version": "0.1.0",
+  "description": "The fastest way for designers to get started with Claude Code in the terminal",
+  "type": "module",
+  "bin": {
+    "claude-for-designers": "./bin/cli.js",
+    "design": "./bin/design.js"
+  },
+  "files": [
+    "bin/",
+    "src/",
+    "commands/"
+  ],
+  "scripts": {
+    "start": "node bin/cli.js setup"
+  },
+  "keywords": [
+    "claude",
+    "claude-code",
+    "design",
+    "figma",
+    "ai",
+    "designer",
+    "cli"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@inquirer/prompts": "^7.0.0",
+    "chalk": "^5.3.0"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mehuljatiya/claude-for-designers"
+  }
+}
