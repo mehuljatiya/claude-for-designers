@@ -24,7 +24,7 @@
     "designer",
     "cli"
   ],
-  "author": "",
+  "author": "Mehul Jatiya",
   "license": "MIT",
   "dependencies": {
     "@inquirer/prompts": "^7.0.0",
