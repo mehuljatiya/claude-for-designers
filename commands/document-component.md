@@ -8,6 +8,42 @@ You are generating developer-ready component documentation from a Figma design s
 
 ---
 
+## Step 0 — Prerequisites Check
+
+Before doing anything else, verify the required tools are available and ask for all permissions upfront.
+
+### Check Figma MCP
+
+Call `mcp__claude_ai_Figma__whoami`. If it fails or returns an auth error:
+
+> **Setup required before this skill can run:**
+>
+> 1. Open the **Claude desktop app**
+> 2. Go to **Settings → Integrations** (or Extensions)
+> 3. Find **Figma** and click **Enable**
+> 4. **Quit and relaunch** Claude Code — the MCP won't load until you restart
+> 5. Then re-run `/document-component` with your Figma URL
+>
+> If you've already done this and it still fails, run `claude mcp add --transport http figma https://mcp.figma.com/mcp --scope user` in your terminal, then restart.
+
+Stop here — do not proceed until Figma MCP is confirmed working.
+
+### Ask for all permissions upfront
+
+Before running any tools, tell the user exactly what you'll need to do:
+
+> "To generate this documentation I'll need to:
+> - Read your Figma file (Figma MCP)
+> - Create files in the current directory (markdown + HTML)
+> - Open the HTML file in your browser
+> - Optionally open Figma in Chrome to push the docs (Chrome DevTools MCP)
+>
+> Approve each tool call as it comes up, or run `/less-permission-prompts` to reduce future prompts."
+
+Do NOT ask one by one as you go — front-load this so the user knows what's coming.
+
+---
+
 ## Step 1 — Parse the Figma URL
 
 Extract `fileKey` and `nodeId` from the URL:
@@ -25,7 +61,7 @@ Call `get_design_context` on the top-level node. If the result is too large:
 
 Read design component documentation for similar components from the internet from the companies which has good design system available publically like UBER, RAZORPAY, AIRBNB, ATLASSIAN etc. and then decide on the sections for each component by cross referencing it to the figma component whose link was received.
 
-Typical sections in a Cashmere/standard design system doc page:
+Typical sections in a standard design system doc page:
 - Introduction + Anatomy
 - Variations
 - Props & Tokens including max width, min width, min height and max height wherever available. Do not make up your own limits unless defined in the component properties. 
@@ -34,7 +70,7 @@ Typical sections in a Cashmere/standard design system doc page:
 
 
 Parse React/Tailwind code for design token values (color hex, spacing, radius, typography).
-Use screenshots to visually verify all variants are captured. Do not make any mistake while reading and creating the components documentation using same components as in figma file. The sample to be used in each section should be copied from the figma component itself along with verification and correct mention of tokens used in the exact format in figma. Do not hallucinate when you refer other design system documentation, add only those things that are a part of cashmere figma file. 
+Use screenshots to visually verify all variants are captured. Do not make any mistake while reading and creating the components documentation using same components as in figma file. The sample to be used in each section should be copied from the figma component itself along with verification and correct mention of tokens used in the exact format in figma. Do not hallucinate when you refer other design system documentation, add only those things that are a part of the provided Figma file. 
 
 ---
 
@@ -254,7 +290,7 @@ After writing the `.md` file, generate a self-contained `[component-name].html` 
 - Render `✕ Don't` blocks in a red-tinted card (`#fff4f4` bg, `#ea4335` border)
 - Render inline code and code blocks with a monospace font and `#f5f5f5` background
 - Render design token names in `<code>` tags with the hex value shown as a small color swatch inline
-- Include a fixed header bar with the component name, "Cashmere Design System", and a **"Push to Figma →"** button (id=`push-to-figma`, styled in `#1b1b1b` with white text)
+- Include a fixed header bar with the component name, the design system name (inferred from the Figma file), and a **"Push to Figma →"** button (id=`push-to-figma`, styled in `#1b1b1b` with white text)
 - The Push to Figma button shows a `window.alert('Ready to push to Figma. Run /document-component push in Claude Code.')` on click
 - Section headings (`##`) get an anchor `id` for sidebar nav deep-linking
 - Responsive: sidebar collapses to a top nav on narrow viewports
@@ -267,7 +303,7 @@ After writing the `.md` file, generate a self-contained `[component-name].html` 
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>[Component Name] — Cashmere Design System</title>
+  <title>[Component Name] — [Design System Name]</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     /* Reset, layout, sidebar, typography, tables, do/don't cards, code, color swatches, responsive */
@@ -366,9 +402,9 @@ Before finishing, verify:
 
 - Adapt section names to match whatever the Figma doc uses — not all components have every section
 - Accessibility section is required for all interactive components (buttons, inputs, modals, etc.); omit only for purely decorative or static components
-- Related Components: include only components that exist in Cashmere — do not invent component names
+- Related Components: include only components that exist in the same design system — do not invent component names
 - Additional sections (Changelog, Figma usage notes) go after Related Components in both MD and HTML
 - Extract hex values from Tailwind classes: `bg-[#hex]`, `text-[#hex]`, `border-[#hex]`
-- Token pattern in Cashmere: `--sds-[category]-[property]-[modifier]`; adapt for other systems
+- Token pattern varies by design system — infer from the Figma file (e.g. `--sds-*`, `--ds-*`, `--color-*`); do not assume a fixed prefix
 - If the node is a component (not a doc page), fetch individual variant states in parallel to extract tokens
 - The HTML file is the primary review artifact — make it polished enough to share with a design team
