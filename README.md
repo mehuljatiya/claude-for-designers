@@ -33,8 +33,7 @@ Get a full AI-powered design workflow running in 2 minutes.
 You'll need [Node.js 20+](https://nodejs.org) installed. That's it.
 
 ```bash
-npm install -g claude-for-designers
-claude-for-designers setup
+npm install -g claude-for-designers && claude-for-designers setup
 ```
 
 This will:
