@@ -13,7 +13,8 @@
     "commands/"
   ],
   "scripts": {
-    "start": "node bin/cli.js setup"
+    "start": "node bin/cli.js setup",
+    "release": "npm version patch && git push && npm publish"
   },
   "keywords": [
     "claude",
