@@ -1,5 +1,25 @@
 Help me turn a Figma design into working code.
 
+---
+
+## Prerequisites — Check Figma MCP
+
+Before doing anything, call `mcp__claude_ai_Figma__whoami`. If it fails or returns an auth error, stop and tell the user:
+
+> **Setup required before this command can run:**
+>
+> 1. Open the **Claude desktop app**
+> 2. Go to **Settings → Integrations**
+> 3. Find **Figma** and click **Enable**
+> 4. **Quit and relaunch** Claude Code — the MCP won't load until you restart
+> 5. Then re-run `/figma` with your Figma URL
+>
+> If you've already done this and it still fails, run `claude mcp add --transport http figma https://mcp.figma.com/mcp --scope user` in your terminal, then restart.
+
+Do not proceed until Figma MCP is confirmed working.
+
+---
+
 The user will paste a Figma URL. Here's what to do:
 
 **Step 1 — Read the design**

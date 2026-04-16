@@ -14,11 +14,12 @@ Get a full AI-powered design workflow running in 2 minutes.
 
 **A `design` launcher** that starts Claude with a quick-reference cheat sheet.
 
-**6 design slash commands** you can use inside any project:
+**7 design slash commands** you can use inside any project:
 
 | Command | What it does |
 |---|---|
 | `/figma [url]` | Pull a Figma design and build it as code |
+| `/document-component [url]` | Generate full component documentation from a Figma design system page |
 | `/new-component` | Create a new component step by step |
 | `/document` | Write docs for any component |
 | `/review` | Check a component for quality, states, and accessibility |
@@ -32,12 +33,13 @@ Get a full AI-powered design workflow running in 2 minutes.
 You'll need [Node.js 20+](https://nodejs.org) installed. That's it.
 
 ```bash
-npx claude-for-designers setup
+npm install -g claude-for-designers
+claude-for-designers setup
 ```
 
 This will:
 1. Check if Claude Code is installed — offer to install it if not
-2. Install the 6 design workflows to `~/.claude/commands/`
+2. Install the 7 design workflows to `~/.claude/commands/`
 3. Optionally configure Figma MCP (connects via OAuth — no token needed)
 4. Remind you to get an Anthropic API key if needed (free to start)
 
@@ -98,7 +100,7 @@ To get the latest versions of the slash commands:
 ```bash
 # Delete existing commands from ~/.claude/commands/
 # then re-run:
-npx claude-for-designers setup
+claude-for-designers setup
 ```
 
 ---

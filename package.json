@@ -1,11 +1,11 @@
 {
   "name": "claude-for-designers",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "The fastest way for designers to get started with Claude Code in the terminal",
   "type": "module",
   "bin": {
-    "claude-for-designers": "./bin/cli.js",
-    "design": "./bin/design.js"
+    "claude-for-designers": "bin/cli.js",
+    "design": "bin/design.js"
   },
   "files": [
     "bin/",
@@ -35,6 +35,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/mehuljatiya/claude-for-designers"
+    "url": "git+https://github.com/mehuljatiya/claude-for-designers.git"
   }
 }
