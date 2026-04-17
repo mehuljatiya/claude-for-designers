@@ -132,6 +132,11 @@ export async function runSetup() {
     console.log(chalk.green('  ✓ Already configured\n'))
   }
 
+  // ── Register design command globally ────────────────────────────────────
+  try {
+    npmInstallGlobal('claude-for-designers')
+  } catch { /* non-critical — claude still works without design command */ }
+
   // ── Done ─────────────────────────────────────────────────────────────────
   showNextSteps(figmaConnected)
 }
@@ -338,9 +343,10 @@ function installSlashCommands() {
 function showNextSteps(figmaConnected) {
   console.log('─'.repeat(50))
   console.log(chalk.bold('\nYou\'re all set!\n'))
+  console.log(chalk.yellow('  Open a new terminal tab first') + ' so PATH updates take effect.\n')
   console.log('To start:')
-  console.log('  1. Open Terminal in your project folder')
-  console.log('  2. Type ' + chalk.cyan('design') + ' and press Enter')
+  console.log('  1. Open a new terminal tab in your project folder')
+  console.log('  2. Type ' + chalk.cyan('claude') + ' (or ' + chalk.cyan('design') + ' for a command cheat sheet)')
 
   if (figmaConnected) {
     console.log('  3. Inside Claude, type ' + chalk.cyan('/mcp') + ' → figma → Authenticate')
