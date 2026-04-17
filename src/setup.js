@@ -168,7 +168,11 @@ function npmInstallGlobal(pkg) {
     } catch { /* non-critical */ }
 
     try {
-      execSync(`npm install -g ${pkg}`, { stdio: 'inherit' })
+      // Pass --prefix directly so config file overrides can't interfere
+      execSync(`npm install -g ${pkg} --prefix="${npmGlobal}"`, {
+        stdio: 'inherit',
+        env: { ...process.env, npm_config_prefix: npmGlobal }
+      })
     } catch {
       console.log(chalk.red('\n  Install still failed after fixing permissions.'))
       console.log('  Try opening a new terminal tab and re-running:')
