@@ -714,7 +714,7 @@
 
       <div class="install-wrap">
         <div class="install-code">
-          <span class="dollar">$ </span>npm install -g claude-for-designers &amp;&amp; claude-for-designers setup
+          <span class="dollar">$ </span>npx claude-for-designers@latest setup
         </div>
         <button class="copy-btn" id="copy-btn" onclick="copyInstall()"><svg id="copy-icon" aria-hidden="true" width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:inline-block;vertical-align:middle;margin-right:5px;"><rect x="4.5" y="4.5" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.2"/><path d="M2.5 8.5H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5a1 1 0 0 1 1 1v.5" stroke="currentColor" stroke-width="1.2"/></svg><svg id="check-icon" aria-hidden="true" width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:none;vertical-align:middle;margin-right:5px;"><polyline points="2,7 5,10 11,3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Copy</button>
       </div>
@@ -729,9 +729,6 @@
       <p style="margin-top: 16px; font-size: 13px; font-weight: 300; color: var(--muted);">
         <button onclick="document.getElementById('why-terminal').showModal()" style="background:none;border:none;padding:0;cursor:pointer;color:var(--accent);font-size:13px;font-family:'Space Grotesk',sans-serif;font-weight:400;border-bottom:1px solid var(--accent-dim);padding-bottom:1px;transition:color 0.15s;" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--accent)'">Why terminal?</button>
         &nbsp;·&nbsp; <a href="#what-gets-installed" style="color:var(--muted);text-decoration:none;transition:color 0.15s;" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--muted)'">What gets installed →</a>
-      </p>
-      <p style="margin-top: 10px; font-size: 12px; font-weight: 300; color: var(--muted);">
-        Permission error? Use <code style="font-family:'SF Mono','Fira Code',monospace;font-size:11px;color:var(--accent);background:var(--code-bg);padding:1px 5px;border-radius:3px;">npx</code> instead — no install required: <code style="font-family:'SF Mono','Fira Code',monospace;font-size:11px;color:var(--muted);background:var(--code-bg);padding:1px 5px;border-radius:3px;">npx claude-for-designers@latest setup</code>
       </p>
     </section>
 
@@ -1026,7 +1023,7 @@
         <div class="step">
           <div class="step-num">01</div>
           <h4>Install</h4>
-          <p>Run <code>npm install -g claude-for-designers &amp;&amp; claude-for-designers setup</code> in your terminal. The wizard handles the rest.</p>
+          <p>Run <code>npx claude-for-designers@latest setup</code> in your terminal. The wizard handles the rest.</p>
         </div>
         <div class="step">
           <div class="step-num">02</div>
@@ -1065,7 +1062,7 @@
     }
 
     function copyInstall() {
-      const text = 'npm install -g claude-for-designers && claude-for-designers setup';
+      const text = 'npx claude-for-designers@latest setup';
       navigator.clipboard.writeText(text).then(() => {
         const btn = document.getElementById('copy-btn');
         const copyIcon = document.getElementById('copy-icon');

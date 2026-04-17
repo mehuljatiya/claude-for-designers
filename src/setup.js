@@ -1,5 +1,5 @@
 import { execSync, spawnSync } from 'child_process'
-import { existsSync, mkdirSync, copyFileSync, readdirSync } from 'fs'
+import { existsSync, mkdirSync, copyFileSync, readdirSync, appendFileSync } from 'fs'
 import { join } from 'path'
 import { homedir } from 'os'
 import { fileURLToPath } from 'url'
@@ -50,7 +50,7 @@ export async function runSetup() {
 
     console.log(chalk.dim('  Installing...'))
     try {
-      execSync('npm install -g @anthropic-ai/claude-code', { stdio: 'inherit' })
+      npmInstallGlobal('@anthropic-ai/claude-code')
       console.log(chalk.green('  ✓ Claude Code installed\n'))
     } catch {
       console.log()
@@ -134,6 +134,34 @@ export async function runSetup() {
 
   // ── Done ─────────────────────────────────────────────────────────────────
   showNextSteps(figmaConnected)
+}
+
+function npmInstallGlobal(pkg) {
+  try {
+    execSync(`npm install -g ${pkg}`, { stdio: 'inherit' })
+  } catch (err) {
+    const output = (err.stderr?.toString() || '') + (err.stdout?.toString() || '')
+    if (!output.includes('EACCES')) throw err
+
+    // Permission denied — fix npm prefix to user home and retry
+    console.log(chalk.yellow('\n  Permission denied. Fixing npm global directory...\n'))
+    const npmGlobal = join(homedir(), '.npm-global')
+    mkdirSync(npmGlobal, { recursive: true })
+    execSync(`npm config set prefix '${npmGlobal}'`, { stdio: 'inherit' })
+    process.env.PATH = join(npmGlobal, 'bin') + ':' + (process.env.PATH || '')
+
+    // Persist to shell profile
+    const shell = process.env.SHELL || ''
+    const profileFile = shell.includes('zsh') ? '.zshrc' : '.bashrc'
+    const profilePath = join(homedir(), profileFile)
+    const exportLine = `\nexport PATH="$HOME/.npm-global/bin:$PATH"\n`
+    try {
+      appendFileSync(profilePath, exportLine)
+      console.log(chalk.dim(`  Added PATH export to ~/${profileFile}`))
+    } catch { /* non-critical */ }
+
+    execSync(`npm install -g ${pkg}`, { stdio: 'inherit' })
+  }
 }
 
 async function upgradeNode() {
