@@ -14,8 +14,20 @@ export async function runSetup() {
   console.log(chalk.bold('Claude for Designers') + ' ✦')
   console.log("Let's get you set up. This takes about 2 minutes.\n")
 
+  // ── Node version check ───────────────────────────────────────────────────
+  const nodeVersion = process.versions.node
+  const major = parseInt(nodeVersion.split('.')[0], 10)
+  if (major < 20) {
+    console.log(chalk.red('  Node.js 20 or higher is required.'))
+    console.log(chalk.dim(`  You're on v${nodeVersion}.`))
+    console.log('  Download the LTS version at: ' + chalk.cyan('https://nodejs.org'))
+    console.log('  Install it like any Mac app, then re-run this command.\n')
+    process.exit(1)
+  }
+  console.log(chalk.green(`  ✓ Node.js v${nodeVersion}\n`))
+
   // ── Step 1: Claude Code ──────────────────────────────────────────────────
-  console.log(chalk.bold('Step 1/4') + ' — Claude Code')
+  console.log(chalk.bold('Step 1/5') + ' — Claude Code')
 
   const claudeInstalled = isClaudeInstalled()
 

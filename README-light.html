@@ -11,16 +11,16 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:        #171410; --bg:        oklch(11% 0.012 60);
-      --bg-raised: #201d19; --bg-raised: oklch(14% 0.012 60);
-      --bg-subtle: #262320; --bg-subtle: oklch(16% 0.010 60);
-      --bg-alt:    #1c1a17; --bg-alt:    oklch(12.5% 0.010 60);
-      --border:    #38332e; --border:    oklch(22% 0.010 60);
-      --text:      #ece8e1; --text:      oklch(92% 0.012 80);
-      --muted:     #8c8479; --muted:     oklch(58% 0.010 70);
-      --accent:    #d4a96a; --accent:    oklch(76% 0.14 78);
-      --accent-dim:#a67e44; --accent-dim:oklch(60% 0.10 78);
-      --code-bg:   #1a1714; --code-bg:   oklch(13% 0.008 60);
+      --bg:        #faf7f2; --bg:        oklch(97% 0.008 80);
+      --bg-raised: #f2ede4; --bg-raised: oklch(94% 0.010 78);
+      --bg-subtle: #e9e2d5; --bg-subtle: oklch(91% 0.012 76);
+      --bg-alt:    #f6f1e8; --bg-alt:    oklch(95.5% 0.009 78);
+      --border:    #d8ceba; --border:    oklch(84% 0.015 75);
+      --text:      #1e1a14; --text:      oklch(15% 0.015 60);
+      --muted:     #6a5c48; --muted:     oklch(44% 0.018 68);
+      --accent:    #8a5a10; --accent:    oklch(48% 0.14 65);
+      --accent-dim:#9e7232; --accent-dim:oklch(56% 0.10 68);
+      --code-bg:   #e9e2d5; --code-bg:   oklch(91% 0.012 76);
     }
 
     html { scroll-behavior: smooth; }
@@ -49,7 +49,7 @@
       position: sticky;
       top: 0;
       z-index: 100;
-      background: rgba(23, 20, 16, 0.9);
+      background: rgba(250, 247, 242, 0.9);
       background: color-mix(in oklch, var(--bg) 90%, transparent);
       backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border);
@@ -438,9 +438,9 @@
       border-radius: 3px;
     }
     .tag-required {
-      background: oklch(20% 0.04 78);
+      background: oklch(92% 0.04 78);
       color: var(--accent);
-      border: 1px solid oklch(28% 0.06 78);
+      border: 1px solid oklch(84% 0.06 78);
     }
     .tag-optional {
       background: var(--bg-subtle);
@@ -616,7 +616,7 @@
       margin: 0;
     }
     dialog::backdrop {
-      background: rgba(0, 0, 0, 0.6);
+      background: rgba(30, 26, 20, 0.55);
     }
   </style>
 </head>
@@ -668,7 +668,7 @@
     </section>
 
     <!-- ── Why terminal modal ── -->
-    <dialog id="why-terminal" aria-labelledby="why-terminal-title" style="background:var(--bg-raised);border:1px solid var(--border);border-radius:16px;padding:40px;max-width:480px;width:90%;color:var(--text);box-shadow:0 24px 64px rgba(0,0,0,0.6);">
+    <dialog id="why-terminal" aria-labelledby="why-terminal-title" style="background:var(--bg-raised);border:1px solid var(--border);border-radius:16px;padding:40px;max-width:480px;width:90%;color:var(--text);box-shadow:0 24px 64px rgba(30,26,20,0.15);">
       <form method="dialog">
         <button aria-label="Close dialog" style="position:absolute;top:16px;right:18px;background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;line-height:1;transition:color 0.15s;" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--muted)'">&times;</button>
       </form>
@@ -698,7 +698,7 @@
         </div>
       </div>
       <form method="dialog" style="margin-top:28px;">
-        <button style="width:100%;padding:12px;background:var(--accent);color:oklch(11% 0.012 60);border:none;border-radius:8px;font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;cursor:pointer;">Got it</button>
+        <button style="width:100%;padding:12px;background:var(--accent);color:var(--bg);border:none;border-radius:8px;font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;cursor:pointer;">Got it</button>
       </form>
     </dialog>
 
