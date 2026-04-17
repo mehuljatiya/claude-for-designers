@@ -209,14 +209,35 @@ async function upgradeNode() {
   try {
     execSync('which brew', { stdio: 'ignore' })
     console.log(chalk.dim('  Homebrew detected.'))
+
+    // Check if node@20 is already installed but just not linked/active
+    let brewNodePath = null
+    try {
+      const prefix = execSync('brew --prefix node@20 2>/dev/null', { encoding: 'utf8', stdio: 'pipe' }).trim()
+      const candidate = join(prefix, 'bin', 'node')
+      if (existsSync(candidate)) brewNodePath = candidate
+    } catch { /* not installed yet */ }
+
+    if (brewNodePath) {
+      // Already installed — just re-exec with it directly
+      console.log(chalk.green('  ✓ Node.js 20 already installed via Homebrew'))
+      console.log(chalk.dim('  Restarting setup with Node.js 20...\n'))
+      const result = spawnSync(brewNodePath, process.argv.slice(1), { stdio: 'inherit' })
+      process.exit(result.status ?? 0)
+    }
+
     const go = await confirm({ message: 'Install Node.js 20 via Homebrew?', default: true }).catch(() => false)
     if (go) {
       console.log(chalk.dim('\n  Installing Node.js 20 — this takes a minute...\n'))
       try {
-        execSync('brew install node@20 && brew link --overwrite --force node@20', { shell: '/bin/bash', stdio: 'inherit' })
+        execSync('brew install node@20', { shell: '/bin/bash', stdio: 'inherit' })
+        execSync('brew link --overwrite --force node@20', { shell: '/bin/bash', stdio: 'pipe' })
+        const prefix = execSync('brew --prefix node@20', { encoding: 'utf8', stdio: 'pipe' }).trim()
+        brewNodePath = join(prefix, 'bin', 'node')
         console.log(chalk.green('\n  ✓ Node.js 20 installed'))
-        console.log(chalk.yellow('\n  Open a new terminal tab, then re-run:'))
-        console.log('  ' + chalk.cyan('npx claude-for-designers@latest setup\n'))
+        console.log(chalk.dim('  Restarting setup with Node.js 20...\n'))
+        const result = spawnSync(brewNodePath, process.argv.slice(1), { stdio: 'inherit' })
+        process.exit(result.status ?? 0)
       } catch {
         console.log(chalk.red('\n  Homebrew install failed.'))
         console.log('  Try manually: ' + chalk.cyan('brew install node@20') + '\n')
