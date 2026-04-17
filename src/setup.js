@@ -99,14 +99,38 @@ export async function runSetup() {
           { stdio: 'pipe' }
         )
         console.log(chalk.green('  ✓ Figma MCP configured'))
-        console.log(chalk.dim('  One more step: inside Claude, type /mcp → select figma → Authenticate'))
-        console.log(chalk.dim('  This connects your Figma account via OAuth (you\'ll only do this once)\n'))
         figmaConnected = true
       } catch {
         console.log(chalk.yellow('  Could not auto-configure Figma.'))
         console.log('  Run this manually after setup:')
         console.log('  ' + chalk.cyan('claude mcp add --transport http figma https://mcp.figma.com/mcp --scope user'))
         console.log()
+      }
+
+      if (figmaConnected) {
+        console.log()
+        console.log(chalk.bold('  Authenticate Figma now') + ' — takes 30 seconds, saves you the step later.\n')
+        console.log('  Claude will open. Follow these 3 steps inside it:')
+        console.log('    1. Type ' + chalk.cyan('/mcp') + ' and press Enter')
+        console.log('    2. Select ' + chalk.cyan('figma') + ' → ' + chalk.cyan('Authenticate'))
+        console.log('    3. Log in to Figma in the browser that opens, then come back here')
+        console.log('    4. Type ' + chalk.cyan('/exit') + ' to return to setup\n')
+
+        const doAuth = await confirm({
+          message: 'Open Claude to authenticate Figma now?',
+          default: true,
+        }).catch(() => false)
+
+        if (doAuth) {
+          try {
+            execSync('claude', { stdio: 'inherit' })
+            console.log(chalk.green('\n  ✓ Figma authentication complete\n'))
+          } catch {
+            console.log(chalk.dim('\n  (You can authenticate later — type /mcp inside Claude)\n'))
+          }
+        } else {
+          console.log(chalk.dim('  Skipped. To authenticate later, open Claude and type /mcp → figma → Authenticate\n'))
+        }
       }
     }
   } else {
