@@ -51,7 +51,7 @@ export async function runSetup() {
   }
 
   // ── Step 2: Slash commands ───────────────────────────────────────────────
-  console.log(chalk.bold('Step 2/4') + ' — Installing design workflows')
+  console.log(chalk.bold('Step 2/5') + ' — Installing slash commands')
 
   const { installed, skipped } = installSlashCommands()
 
@@ -65,7 +65,7 @@ export async function runSetup() {
   console.log()
 
   // ── Step 3: Figma MCP ────────────────────────────────────────────────────
-  console.log(chalk.bold('Step 3/4') + ' — Figma ' + chalk.dim('(optional)'))
+  console.log(chalk.bold('Step 3/5') + ' — Figma ' + chalk.dim('(optional)'))
   console.log(chalk.dim('  Lets Claude read your Figma designs directly — no copy-pasting needed.\n'))
 
   const wantsFigma = await confirm({
@@ -103,8 +103,15 @@ export async function runSetup() {
     console.log(chalk.dim('  claude mcp add --transport http figma https://mcp.figma.com/mcp --scope user\n'))
   }
 
-  // ── Step 4: API key ──────────────────────────────────────────────────────
-  console.log(chalk.bold('Step 4/4') + ' — API key')
+  // ── Step 4: Browser & Figma plugins ─────────────────────────────────────
+  console.log(chalk.bold('Step 4/5') + ' — Browser tools')
+  console.log(chalk.dim('  Enables /document-component to open a browser preview and push docs into Figma.\n'))
+
+  installPlugin('chrome-devtools-mcp', 'chrome-devtools-plugins', 'Chrome DevTools')
+  installPlugin('figma-friend', 'figma-friend-marketplace', 'Figma Friend')
+
+  // ── Step 5: API key ──────────────────────────────────────────────────────
+  console.log(chalk.bold('Step 5/5') + ' — API key')
 
   if (!claudeInstalled) {
     console.log('  You\'ll need a free Anthropic API key.')
@@ -116,6 +123,26 @@ export async function runSetup() {
 
   // ── Done ─────────────────────────────────────────────────────────────────
   showNextSteps(figmaConnected)
+}
+
+function installPlugin(pluginName, marketplace, label) {
+  try {
+    const result = execSync('claude plugin list', { encoding: 'utf8', stdio: 'pipe' })
+    if (result.toLowerCase().includes(pluginName.toLowerCase())) {
+      console.log(chalk.green(`  ✓ ${label} already installed`))
+      return
+    }
+  } catch { /* continue */ }
+
+  try {
+    execSync(`claude plugin install ${pluginName}@${marketplace} --scope user`, { stdio: 'pipe' })
+    console.log(chalk.green(`  ✓ ${label} installed`))
+  } catch {
+    console.log(chalk.yellow(`  Could not install ${label} automatically.`))
+    console.log('  Run this manually:')
+    console.log('  ' + chalk.cyan(`claude plugin install ${pluginName}@${marketplace}`))
+  }
+  console.log()
 }
 
 function isClaudeInstalled() {
