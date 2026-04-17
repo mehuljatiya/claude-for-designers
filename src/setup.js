@@ -1,4 +1,4 @@
-import { execSync } from 'child_process'
+import { execSync, spawnSync } from 'child_process'
 import { existsSync, mkdirSync, copyFileSync, readdirSync } from 'fs'
 import { join } from 'path'
 import { homedir } from 'os'
@@ -18,10 +18,9 @@ export async function runSetup() {
   const nodeVersion = process.versions.node
   const major = parseInt(nodeVersion.split('.')[0], 10)
   if (major < 20) {
-    console.log(chalk.red('  Node.js 20 or higher is required.'))
-    console.log(chalk.dim(`  You're on v${nodeVersion}.`))
-    console.log('  Download the LTS version at: ' + chalk.cyan('https://nodejs.org'))
-    console.log('  Install it like any Mac app, then re-run this command.\n')
+    console.log(chalk.yellow(`  Node.js v${nodeVersion} detected — version 20 or higher is required.\n`))
+    await upgradeNode()
+    // upgradeNode either re-execs (nvm path) or exits
     process.exit(1)
   }
   console.log(chalk.green(`  ✓ Node.js v${nodeVersion}\n`))
@@ -135,6 +134,57 @@ export async function runSetup() {
 
   // ── Done ─────────────────────────────────────────────────────────────────
   showNextSteps(figmaConnected)
+}
+
+async function upgradeNode() {
+  const nvmScript = join(homedir(), '.nvm', 'nvm.sh')
+  const nvmDirEnv = process.env.NVM_DIR ? join(process.env.NVM_DIR, 'nvm.sh') : null
+
+  const nvmPath = nvmDirEnv && existsSync(nvmDirEnv) ? nvmDirEnv
+    : existsSync(nvmScript) ? nvmScript
+    : null
+
+  if (nvmPath) {
+    console.log(chalk.dim('  nvm detected.'))
+    const go = await confirm({ message: 'Install Node.js 20 via nvm and continue setup?', default: true }).catch(() => false)
+    if (go) {
+      console.log(chalk.dim('\n  Installing Node.js 20 — this takes a minute...\n'))
+      try {
+        execSync(`. "${nvmPath}" && nvm install 20`, { shell: '/bin/bash', stdio: 'inherit' })
+        const newNode = execSync(`. "${nvmPath}" && nvm which 20`, { shell: '/bin/bash', encoding: 'utf8', stdio: 'pipe' }).trim()
+        console.log(chalk.green('\n  ✓ Node.js 20 installed'))
+        console.log(chalk.dim('  Restarting setup with Node.js 20...\n'))
+        const result = spawnSync(newNode, process.argv.slice(1), { stdio: 'inherit' })
+        process.exit(result.status ?? 0)
+      } catch {
+        console.log(chalk.red('\n  Node.js upgrade failed.'))
+        console.log('  Try manually: ' + chalk.cyan('nvm install 20') + ' then re-run setup.\n')
+      }
+    }
+    return
+  }
+
+  try {
+    execSync('which brew', { stdio: 'ignore' })
+    console.log(chalk.dim('  Homebrew detected.'))
+    const go = await confirm({ message: 'Install Node.js 20 via Homebrew?', default: true }).catch(() => false)
+    if (go) {
+      console.log(chalk.dim('\n  Installing Node.js 20 — this takes a minute...\n'))
+      try {
+        execSync('brew install node@20 && brew link --overwrite --force node@20', { shell: '/bin/bash', stdio: 'inherit' })
+        console.log(chalk.green('\n  ✓ Node.js 20 installed'))
+        console.log(chalk.yellow('\n  Open a new terminal tab, then re-run:'))
+        console.log('  ' + chalk.cyan('claude-for-designers setup\n'))
+      } catch {
+        console.log(chalk.red('\n  Homebrew install failed.'))
+        console.log('  Try manually: ' + chalk.cyan('brew install node@20') + '\n')
+      }
+    }
+    return
+  } catch { /* no brew */ }
+
+  console.log('  Download Node.js 20 LTS from: ' + chalk.cyan('https://nodejs.org'))
+  console.log('  Install it like any Mac app, then re-run this command.\n')
 }
 
 function installPlugin(pluginName, marketplace, label) {
