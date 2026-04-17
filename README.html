@@ -383,6 +383,155 @@
       flex-shrink: 0;
     }
 
+    /* ── What gets installed ── */
+    .install-steps {
+      display: flex;
+      flex-direction: column;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 48px;
+    }
+    .install-step {
+      display: grid;
+      grid-template-columns: 48px 1fr;
+      gap: 0;
+      background: var(--bg-raised);
+      border-bottom: 1px solid var(--border);
+      transition: background 0.2s;
+    }
+    .install-step:last-child { border-bottom: none; }
+    .install-step:hover { background: var(--bg-subtle); }
+    .install-step-num {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 28px 0 28px;
+      font-family: 'Instrument Serif', serif;
+      font-size: 18px;
+      color: var(--border);
+      border-right: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .install-step-body {
+      padding: 24px 28px;
+    }
+    .install-step-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+    .install-step-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .install-step-tag {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 3px;
+    }
+    .tag-required {
+      background: oklch(20% 0.04 78);
+      color: var(--accent);
+      border: 1px solid oklch(28% 0.06 78);
+    }
+    .tag-optional {
+      background: var(--bg-subtle);
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+    .install-step-desc {
+      font-size: 14px;
+      font-weight: 300;
+      color: var(--muted);
+      line-height: 1.65;
+      margin-bottom: 14px;
+    }
+    .install-detail {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .install-detail-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 300;
+    }
+    .install-detail-row code {
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 11.5px;
+      color: var(--accent);
+      background: var(--code-bg);
+      padding: 1px 6px;
+      border-radius: 3px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .install-detail-row .arrow {
+      color: var(--accent-dim);
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .file-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
+    .file-chip {
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      padding: 3px 9px;
+      border-radius: 4px;
+    }
+    .install-outcome {
+      margin-top: 40px;
+      background: var(--bg-raised);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px 32px;
+      display: flex;
+      align-items: flex-start;
+      gap: 20px;
+    }
+    .install-outcome-icon {
+      font-size: 24px;
+      flex-shrink: 0;
+      margin-top: 2px;
+      color: var(--accent);
+    }
+    .install-outcome h4 {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    .install-outcome p {
+      font-size: 14px;
+      font-weight: 300;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .install-outcome code {
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 12px;
+      color: var(--accent);
+      background: var(--code-bg);
+      padding: 1px 6px;
+      border-radius: 3px;
+    }
+
     /* ── Footer ── */
     footer {
       border-top: 1px solid var(--border);
@@ -447,6 +596,7 @@
       <div class="nav-links">
         <a href="#who">Who it's for</a>
         <a href="#commands">Commands</a>
+        <a href="#what-gets-installed">What gets installed</a>
         <a href="#setup">Setup</a>
         <a href="https://github.com/mehuljatiya/claude-for-designers" target="_blank">GitHub ↗</a>
       </div>
@@ -457,8 +607,8 @@
 
     <!-- ── Hero ── -->
     <section class="hero">
-      <p class="hero-label">npm package</p>
-      <h1>AI workflows for <em>everyone</em> on the design team</h1>
+      <p class="hero-label">npm package &nbsp;·&nbsp; <span style="font-weight:300; letter-spacing:0.04em; color: var(--muted); text-transform:none;">by Mehul Jatiya &nbsp;·&nbsp; <a href="https://github.com/mehuljatiya/claude-for-designers" target="_blank" style="color:var(--muted); text-decoration:none; transition:color 0.15s;" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--muted)'">github.com/mehuljatiya/claude-for-designers ↗</a></span></p>
+      <h1>AI workflows for <em>everyone</em> on the team</h1>
       <p class="hero-sub">One install gives designers, developers, and PMs a shared set of AI-powered tools — from Figma to code, spec to QA.</p>
 
       <div class="install-wrap">
@@ -471,9 +621,13 @@
       <div class="badges">
         <span class="badge">MIT License</span>
         <span class="badge">Node 20+</span>
-        <span class="badge">npm v0.1.2</span>
+        <span class="badge">npm v0.1.3</span>
         <span class="badge">9 slash commands</span>
       </div>
+
+      <p style="margin-top: 20px; font-size: 13px; font-weight: 300; color: var(--muted);">
+        Not sure what this installs? <a href="#what-gets-installed" style="color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--accent-dim); padding-bottom: 1px; transition: color 0.15s, border-color 0.15s;" onmouseover="this.style.color='var(--text)';this.style.borderColor='var(--text)'" onmouseout="this.style.color='var(--accent)';this.style.borderColor='var(--accent-dim)'">See exactly what gets installed →</a>
+      </p>
     </section>
 
     <!-- ── Who it's for ── -->
@@ -519,6 +673,7 @@
           </ul>
         </div>
       </div>
+      <p style="margin-top: 28px; font-size: 13px; font-weight: 300; color: var(--muted);">This is v1 — a starting point. More commands, more workflows, and deeper integrations are on the way.</p>
     </section>
 
     <!-- ── Commands ── -->
@@ -539,50 +694,161 @@
             <tr>
               <td>/figma [url]</td>
               <td><div class="for-tag"><span class="tag">Designers</span><span class="tag">Devs</span></div></td>
-              <td>Pull a Figma design and build it as code</td>
+              <td>Takes a Figma URL → reads every variant and state → describes the component in plain language before writing a line of code → inspects your project's stack, existing patterns, and design tokens → builds it following your conventions. Never hardcodes values.</td>
             </tr>
             <tr>
               <td>/document-component [url]</td>
               <td><div class="for-tag"><span class="tag">Designers</span><span class="tag">PMs</span></div></td>
-              <td>Full component docs from a Figma design system page</td>
+              <td>Takes a Figma URL → reads the design → generates a full <code style="font-size:11.5px;color:var(--accent);background:var(--code-bg);padding:1px 5px;border-radius:3px;">.md</code> + polished <code style="font-size:11.5px;color:var(--accent);background:var(--code-bg);padding:1px 5px;border-radius:3px;">.html</code> preview with anatomy, tokens, states, do/don't guidelines, and accessibility tables. Can push the docs back into Figma.</td>
             </tr>
             <tr>
               <td>/spec [url]</td>
               <td><div class="for-tag"><span class="tag">PMs</span></div></td>
-              <td>Ticket-ready spec with edge cases and acceptance criteria</td>
+              <td>Takes a Figma URL → reads every variant and state → outputs a structured spec you can paste directly into Jira, Linear, or Notion. Covers overview, variants/states table, interactions, edge cases (empty, overflow, error, loading), testable acceptance criteria, open questions, and explicit out-of-scope items.</td>
             </tr>
             <tr>
               <td>/qa [url]</td>
               <td><div class="for-tag"><span class="tag">PMs</span><span class="tag">Devs</span></div></td>
-              <td>Compare Figma design to built component, flag every gap</td>
+              <td>Takes a Figma URL and a codebase component → reads both → outputs a gap report with severity ratings. Flags visual mismatches (wrong token, wrong value), missing states, missing variants, interaction gaps, and accessibility issues. Also lists what's correct so you know what not to touch.</td>
             </tr>
             <tr>
               <td>/new-component</td>
               <td><div class="for-tag"><span class="tag">Designers</span><span class="tag">Devs</span></div></td>
-              <td>Create a new component through guided conversation</td>
+              <td>Starts a short conversation — asks what it should do, what it looks like, and what states it needs — before writing anything. Then inspects your existing components to match project patterns, tokens, and file naming conventions. Builds only what was asked, nothing extra.</td>
             </tr>
             <tr>
               <td>/document</td>
               <td><div class="for-tag"><span class="tag">Designers</span><span class="tag">Devs</span></div></td>
-              <td>Write docs for any existing component</td>
+              <td>Works on existing code components (no Figma needed). Writes a designer-friendly <code style="font-size:11.5px;color:var(--accent);background:var(--code-bg);padding:1px 5px;border-radius:3px;">.docs.md</code> covering what it is, when to use it, all configuration options in plain language, visual states, and accessibility.</td>
             </tr>
             <tr>
               <td>/review</td>
               <td><div class="for-tag"><span class="tag">Everyone</span></div></td>
-              <td>Quality check: states, accessibility, responsiveness</td>
+              <td>Audits a component across five areas: token consistency (flags hardcoded values), completeness of states (default, hover, focus, disabled, loading, error, empty), responsiveness and touch targets, accessibility (keyboard, contrast, screen reader labels), and edge cases (long text, missing images, no data). Each finding is rated ✓ Good, ⚠ Needs attention, or ✗ Missing.</td>
             </tr>
             <tr>
               <td>/tokens</td>
               <td><div class="for-tag"><span class="tag">Designers</span><span class="tag">Devs</span></div></td>
-              <td>Understand and audit design tokens in the project</td>
+              <td>Scans the project for all design tokens — CSS variables, theme files, named values — and produces a designer-friendly reference grouped by color, typography, spacing, shape, and elevation. Then scans for hardcoded values (raw hex, magic px numbers) and lists each one with a suggested token replacement.</td>
             </tr>
             <tr>
               <td>/handoff</td>
               <td><div class="for-tag"><span class="tag">Designers</span><span class="tag">PMs</span></div></td>
-              <td>Generate a precise developer handoff spec</td>
+              <td>Generates a precise, build-ready spec from an existing component — exact token names, pixel values, and state-by-state visual diffs. Covers visual specs, all states with what changes in each, mouse/keyboard interactions, responsive behavior at mobile/tablet/desktop, and accessibility requirements. Saved as a <code style="font-size:11.5px;color:var(--accent);background:var(--code-bg);padding:1px 5px;border-radius:3px;">.handoff.md</code> next to the component.</td>
             </tr>
           </tbody>
         </table>
+      </div>
+    </section>
+
+    <!-- ── What gets installed ── -->
+    <section id="what-gets-installed">
+      <p class="section-label">Transparency</p>
+      <h2>What gets installed</h2>
+
+      <div class="install-steps">
+
+        <div class="install-step">
+          <div class="install-step-num">1</div>
+          <div class="install-step-body">
+            <div class="install-step-header">
+              <span class="install-step-title">Claude Code CLI</span>
+              <span class="install-step-tag tag-required">Required</span>
+            </div>
+            <p class="install-step-desc">Checks if <code style="font-size:11.5px;color:var(--accent);background:var(--code-bg);padding:1px 5px;border-radius:3px;">@anthropic-ai/claude-code</code> is already on your machine. If it isn't, asks your permission before installing it globally via npm. If you decline, it gives you the manual command and exits cleanly — nothing is installed without your approval.</p>
+            <div class="install-detail">
+              <div class="install-detail-row">
+                <span class="arrow">→</span>
+                <span>Installs: <code>npm install -g @anthropic-ai/claude-code</code></span>
+              </div>
+              <div class="install-detail-row">
+                <span class="arrow">→</span>
+                <span>Adds the <code>claude</code> binary to your PATH</span>
+              </div>
+              <div class="install-detail-row">
+                <span class="arrow">→</span>
+                <span>Also adds <code>design</code> — a shortcut that launches Claude from any project folder</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="install-step">
+          <div class="install-step-num">2</div>
+          <div class="install-step-body">
+            <div class="install-step-header">
+              <span class="install-step-title">9 slash commands</span>
+              <span class="install-step-tag tag-required">Required</span>
+            </div>
+            <p class="install-step-desc">Copies 9 <code style="font-size:11.5px;color:var(--accent);background:var(--code-bg);padding:1px 5px;border-radius:3px;">.md</code> slash-command files into <code style="font-size:11.5px;color:var(--accent);background:var(--code-bg);padding:1px 5px;border-radius:3px;">~/.claude/commands/</code> — Claude Code's global commands folder. Each file is a natural-language instruction that tells Claude exactly how to run that command. If a file already exists, it is skipped rather than overwritten, so any customisations you've made are preserved.</p>
+            <div class="file-list">
+              <span class="file-chip">figma.md</span>
+              <span class="file-chip">document-component.md</span>
+              <span class="file-chip">document.md</span>
+              <span class="file-chip">new-component.md</span>
+              <span class="file-chip">review.md</span>
+              <span class="file-chip">tokens.md</span>
+              <span class="file-chip">handoff.md</span>
+              <span class="file-chip">spec.md</span>
+              <span class="file-chip">qa.md</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="install-step">
+          <div class="install-step-num">3</div>
+          <div class="install-step-body">
+            <div class="install-step-header">
+              <span class="install-step-title">Figma MCP server</span>
+              <span class="install-step-tag tag-optional">Optional</span>
+            </div>
+            <p class="install-step-desc">Asks if you want to connect Figma. If yes, registers Anthropic's official Figma MCP server so Claude can read your designs directly — no copy-pasting node IDs. Nothing is downloaded; it's a one-line config entry that points Claude at Figma's hosted MCP endpoint. After setup, the first time you type <code style="font-size:11.5px;color:var(--accent);background:var(--code-bg);padding:1px 5px;border-radius:3px;">/mcp</code> inside Claude you'll do a one-time OAuth login to connect your Figma account.</p>
+            <div class="install-detail">
+              <div class="install-detail-row">
+                <span class="arrow">→</span>
+                <span>Runs: <code>claude mcp add --transport http figma https://mcp.figma.com/mcp --scope user</code></span>
+              </div>
+              <div class="install-detail-row">
+                <span class="arrow">→</span>
+                <span>Writes a single entry to <code>~/.claude/claude.json</code> — no other files touched</span>
+              </div>
+              <div class="install-detail-row">
+                <span class="arrow">→</span>
+                <span>One-time OAuth in Claude: <code>/mcp</code> → figma → Authenticate (you'll only do this once)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="install-step">
+          <div class="install-step-num">4</div>
+          <div class="install-step-body">
+            <div class="install-step-header">
+              <span class="install-step-title">Anthropic API key</span>
+              <span class="install-step-tag tag-required">Required</span>
+            </div>
+            <p class="install-step-desc">If Claude Code wasn't already installed, the setup points you to <code style="font-size:11.5px;color:var(--accent);background:var(--code-bg);padding:1px 5px;border-radius:3px;">console.anthropic.com</code> to get a free API key. Nothing is stored or sent during setup — Claude will ask for the key the first time you run it and save it locally in its own config. If Claude was already installed and configured, this step is skipped entirely.</p>
+            <div class="install-detail">
+              <div class="install-detail-row">
+                <span class="arrow">→</span>
+                <span>Key is stored by Claude Code itself in <code>~/.claude/</code> — not by this package</span>
+              </div>
+              <div class="install-detail-row">
+                <span class="arrow">→</span>
+                <span>Free tier available at <code>console.anthropic.com</code></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="install-outcome">
+        <div class="install-outcome-icon">✦</div>
+        <div>
+          <h4>After setup completes</h4>
+          <p>Open Terminal in any project folder and type <code>claude</code> (or <code>design</code> for a cheat sheet of all commands). Claude launches with all 9 workflows ready. Type any slash command — <code>/figma</code>, <code>/spec</code>, <code>/review</code> — and you're running.</p>
+        </div>
       </div>
     </section>
 
@@ -600,7 +866,7 @@
         <div class="step">
           <div class="step-num">02</div>
           <h4>Launch</h4>
-          <p>Open Terminal in any project folder and type <code>design</code>. Claude opens with a cheat sheet of all available commands.</p>
+          <p>Open Terminal in any project folder and type <code>claude</code>. You're in. Optionally type <code>design</code> for a printed cheat sheet of all available commands.</p>
         </div>
         <div class="step">
           <div class="step-num">03</div>
