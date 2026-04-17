@@ -323,12 +323,15 @@ function showNextSteps(figmaConnected) {
     console.log()
   }
 
-  console.log('Available design workflows (type inside Claude):')
-  console.log('  ' + chalk.cyan('/figma') + ' [url]        Pull a Figma design and build it')
-  console.log('  ' + chalk.cyan('/new-component') + '      Start a new component from scratch')
-  console.log('  ' + chalk.cyan('/document') + '           Write docs for a component')
-  console.log('  ' + chalk.cyan('/review') + '             Design quality and consistency check')
-  console.log('  ' + chalk.cyan('/tokens') + '             Explain the design tokens in this project')
-  console.log('  ' + chalk.cyan('/handoff') + '            Generate a developer handoff doc')
+  console.log('Available workflows (type inside Claude):')
+  console.log('  ' + chalk.cyan('/figma') + ' [url]              Pull a Figma design and build it')
+  console.log('  ' + chalk.cyan('/document-component') + ' [url]  Generate full component docs from Figma')
+  console.log('  ' + chalk.cyan('/spec') + ' [url]               Ticket-ready spec with acceptance criteria')
+  console.log('  ' + chalk.cyan('/qa') + ' [url]                 Compare Figma to built component, flag gaps')
+  console.log('  ' + chalk.cyan('/new-component') + '            Start a new component from scratch')
+  console.log('  ' + chalk.cyan('/document') + '                 Write docs for a component')
+  console.log('  ' + chalk.cyan('/review') + '                   Design quality and consistency check')
+  console.log('  ' + chalk.cyan('/tokens') + '                   Explain the design tokens in this project')
+  console.log('  ' + chalk.cyan('/handoff') + '                  Generate a developer handoff doc')
   console.log()
 }

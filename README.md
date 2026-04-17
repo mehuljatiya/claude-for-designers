@@ -1,109 +1,84 @@
-# Claude for Designers
+# claude-for-designers
 
-The fastest way for designers to start using Claude Code in the terminal — no technical experience required.
+AI workflows for everyone on the team — designers, developers, and PMs.
 
-Get a full AI-powered design workflow running in 2 minutes.
-
----
-
-## What you get
-
-**One setup command** that installs everything:
-- Claude Code (Anthropic's AI terminal tool)
-- 6 pre-built design workflows as slash commands
-
-**A `design` launcher** that starts Claude with a quick-reference cheat sheet.
-
-**7 design slash commands** you can use inside any project:
-
-| Command | What it does |
-|---|---|
-| `/figma [url]` | Pull a Figma design and build it as code |
-| `/document-component [url]` | Generate full component documentation from a Figma design system page |
-| `/new-component` | Create a new component step by step |
-| `/document` | Write docs for any component |
-| `/review` | Check a component for quality, states, and accessibility |
-| `/tokens` | Understand and audit your design tokens |
-| `/handoff` | Generate a developer handoff spec |
+One setup command installs 9 slash commands you can use inside Claude Code, right from your terminal.
 
 ---
 
 ## Setup
 
-You'll need [Node.js 20+](https://nodejs.org) installed. That's it.
-
 ```bash
-npm install -g claude-for-designers && claude-for-designers setup
+npx claude-for-designers@latest setup
 ```
 
-This will:
-1. Check if Claude Code is installed — offer to install it if not
-2. Install the 7 design workflows to `~/.claude/commands/`
-3. Optionally configure Figma MCP (connects via OAuth — no token needed)
-4. Remind you to get an Anthropic API key if needed (free to start)
+The wizard (~2 min) handles everything: Claude Code, Figma MCP, browser plugins, and all 9 commands.
+
+---
+
+## What you get
+
+**9 slash commands** installed to `~/.claude/commands/`:
+
+| Command | For | What it does |
+|---|---|---|
+| `/figma [url]` | Designers, Devs | Pull a Figma design and build it as code |
+| `/document-component [url]` | Designers, PMs | Full component docs from a Figma URL — `.md` + `.html` preview |
+| `/spec [url]` | PMs | Ticket-ready spec with edge cases and acceptance criteria |
+| `/qa [url]` | PMs, Devs | Compare Figma to built component, flag gaps |
+| `/new-component` | Designers, Devs | Start a new component from scratch |
+| `/document` | Designers, Devs | Write docs for an existing codebase component |
+| `/review` | Everyone | Design quality and consistency check |
+| `/tokens` | Designers, Devs | Explain and audit design tokens in any project |
+| `/handoff` | Designers, PMs | Generate a developer handoff spec |
 
 ---
 
 ## Usage
 
-Open Terminal in your project folder and type:
+Open Terminal in any project folder and type:
 
 ```bash
-design
+claude
 ```
 
-Claude opens with a cheat sheet of all available commands.
-
-Once inside Claude, just type a slash command:
-
-```
-/figma https://figma.com/design/...
-```
-
-```
-/review
-```
-
-```
-/new-component
-```
+Or type `design` for a printed cheat sheet of all commands, then Claude opens.
 
 ---
 
 ## Figma
 
-The `/figma` command needs Figma MCP configured. The setup wizard handles this automatically.
+Commands that take a Figma URL need Figma MCP — the setup wizard configures this automatically.
 
-If you skipped it during setup, run:
+To add it manually:
 
 ```bash
 claude mcp add --transport http figma https://mcp.figma.com/mcp --scope user
 ```
 
-Then inside Claude, type `/mcp` → select **figma** → **Authenticate** — this is a one-time OAuth login.
+Then inside Claude: `/mcp` → **figma** → **Authenticate** (one-time OAuth).
 
 ---
 
 ## Requirements
 
-- Node.js 20+
-- An [Anthropic API key](https://console.anthropic.com) (free to start)
-- For `/figma`: Figma MCP (configured by setup, or manually above)
+- Node.js 20+ (setup wizard can install this automatically via nvm or Homebrew)
+- Anthropic API key — [console.anthropic.com](https://console.anthropic.com) (free to start)
+- Figma account (for Figma commands)
 
 ---
 
-## Updating commands
+## Updating
 
-To get the latest versions of the slash commands:
+To get the latest commands, delete existing ones and re-run:
 
 ```bash
-# Delete existing commands from ~/.claude/commands/
-# then re-run:
-claude-for-designers setup
+rm ~/.claude/commands/{figma,document-component,spec,qa,new-component,document,review,tokens,handoff}.md
+npx claude-for-designers@latest setup
 ```
 
 ---
 
 ## License
 
-MIT
+MIT · by [Mehul Jatiya](https://github.com/mehuljatiya)
