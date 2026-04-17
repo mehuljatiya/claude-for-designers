@@ -149,7 +149,8 @@ function npmInstallGlobal(pkg) {
     const npmGlobal = join(homedir(), '.npm-global')
 
     try {
-      mkdirSync(npmGlobal, { recursive: true })
+      mkdirSync(join(npmGlobal, 'lib', 'node_modules'), { recursive: true })
+      mkdirSync(join(npmGlobal, 'bin'), { recursive: true })
       execSync(`npm config set prefix '${npmGlobal}'`, { stdio: 'pipe' })
       process.env.PATH = join(npmGlobal, 'bin') + ':' + (process.env.PATH || '')
     } catch {
