@@ -138,29 +138,43 @@ export async function runSetup() {
 
 function npmInstallGlobal(pkg) {
   try {
-    execSync(`npm install -g ${pkg}`, { stdio: 'inherit' })
+    // Pipe stderr so we can inspect it; stdout still streams to terminal
+    execSync(`npm install -g ${pkg}`, { stdio: ['inherit', 'inherit', 'pipe'] })
   } catch (err) {
-    const output = (err.stderr?.toString() || '') + (err.stdout?.toString() || '')
-    if (!output.includes('EACCES')) throw err
+    const stderr = err.stderr?.toString() || ''
+    if (!stderr.includes('EACCES') && !stderr.includes('permission denied')) throw err
 
     // Permission denied — fix npm prefix to user home and retry
     console.log(chalk.yellow('\n  Permission denied. Fixing npm global directory...\n'))
     const npmGlobal = join(homedir(), '.npm-global')
-    mkdirSync(npmGlobal, { recursive: true })
-    execSync(`npm config set prefix '${npmGlobal}'`, { stdio: 'inherit' })
-    process.env.PATH = join(npmGlobal, 'bin') + ':' + (process.env.PATH || '')
+
+    try {
+      mkdirSync(npmGlobal, { recursive: true })
+      execSync(`npm config set prefix '${npmGlobal}'`, { stdio: 'pipe' })
+      process.env.PATH = join(npmGlobal, 'bin') + ':' + (process.env.PATH || '')
+    } catch {
+      console.log(chalk.red('  Could not fix npm permissions automatically.'))
+      console.log('  Try: ' + chalk.cyan('sudo npm install -g ' + pkg))
+      throw new Error('permission-fix-failed')
+    }
 
     // Persist to shell profile
     const shell = process.env.SHELL || ''
     const profileFile = shell.includes('zsh') ? '.zshrc' : '.bashrc'
     const profilePath = join(homedir(), profileFile)
-    const exportLine = `\nexport PATH="$HOME/.npm-global/bin:$PATH"\n`
     try {
-      appendFileSync(profilePath, exportLine)
+      appendFileSync(profilePath, `\nexport PATH="$HOME/.npm-global/bin:$PATH"\n`)
       console.log(chalk.dim(`  Added PATH export to ~/${profileFile}`))
     } catch { /* non-critical */ }
 
-    execSync(`npm install -g ${pkg}`, { stdio: 'inherit' })
+    try {
+      execSync(`npm install -g ${pkg}`, { stdio: 'inherit' })
+    } catch {
+      console.log(chalk.red('\n  Install still failed after fixing permissions.'))
+      console.log('  Try opening a new terminal tab and re-running:')
+      console.log('  ' + chalk.cyan('npx claude-for-designers@latest setup'))
+      throw new Error('retry-failed')
+    }
   }
 }
 
@@ -202,7 +216,7 @@ async function upgradeNode() {
         execSync('brew install node@20 && brew link --overwrite --force node@20', { shell: '/bin/bash', stdio: 'inherit' })
         console.log(chalk.green('\n  ✓ Node.js 20 installed'))
         console.log(chalk.yellow('\n  Open a new terminal tab, then re-run:'))
-        console.log('  ' + chalk.cyan('claude-for-designers setup\n'))
+        console.log('  ' + chalk.cyan('npx claude-for-designers@latest setup\n'))
       } catch {
         console.log(chalk.red('\n  Homebrew install failed.'))
         console.log('  Try manually: ' + chalk.cyan('brew install node@20') + '\n')
@@ -255,12 +269,25 @@ function isFigmaMcpConfigured() {
 
 function installSlashCommands() {
   const commandsDir = join(homedir(), '.claude', 'commands')
-  if (!existsSync(commandsDir)) {
-    mkdirSync(commandsDir, { recursive: true })
+  try {
+    if (!existsSync(commandsDir)) {
+      mkdirSync(commandsDir, { recursive: true })
+    }
+  } catch {
+    console.log(chalk.red('  Could not create ~/.claude/commands/'))
+    console.log(chalk.dim('  Check permissions on your home directory.'))
+    return { installed: [], skipped: [] }
   }
 
   const sourceDir = join(__dirname, '..', 'commands')
-  const files = readdirSync(sourceDir).filter(f => f.endsWith('.md'))
+  let files = []
+  try {
+    files = readdirSync(sourceDir).filter(f => f.endsWith('.md'))
+  } catch {
+    console.log(chalk.red('  Could not read commands from package — it may be corrupted.'))
+    console.log(chalk.dim('  Try re-running: npx claude-for-designers@latest setup'))
+    return { installed: [], skipped: [] }
+  }
 
   const installed = []
   const skipped = []
@@ -270,8 +297,12 @@ function installSlashCommands() {
     if (existsSync(dest)) {
       skipped.push(file)
     } else {
-      copyFileSync(join(sourceDir, file), dest)
-      installed.push(file)
+      try {
+        copyFileSync(join(sourceDir, file), dest)
+        installed.push(file)
+      } catch {
+        console.log(chalk.yellow(`  Could not copy ${file} — skipping`))
+      }
     }
   }
 
