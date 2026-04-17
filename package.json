@@ -1,6 +1,6 @@
 {
   "name": "claude-for-designers",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "The fastest way for designers to get started with Claude Code in the terminal",
   "type": "module",
   "bin": {
