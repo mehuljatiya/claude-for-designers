@@ -59,18 +59,60 @@ Call `get_design_context` on the top-level node. If the result is too large:
 2. Extract all top-level section frame IDs using: `<frame id="..." name="Container" x="32" ...>`
 3. Call `get_design_context` on each section ID **in parallel**
 
-Read design component documentation for similar components from the internet from the companies which has good design system available publically like UBER, RAZORPAY, AIRBNB, ATLASSIAN etc. and then decide on the sections for each component by cross referencing it to the figma component whose link was received.
-
-Typical sections in a standard design system doc page:
-- Introduction + Anatomy
-- Variations
-- Props & Tokens including max width, min width, min height and max height wherever available. Do not make up your own limits unless defined in the component properties. 
-- Usage Guidelines based on standard guidelines for each component , most components are generic except a few so documentation and usage should be similar for all like in other documentations. 
-- Platform
-
-
 Parse React/Tailwind code for design token values (color hex, spacing, radius, typography).
-Use screenshots to visually verify all variants are captured. Do not make any mistake while reading and creating the components documentation using same components as in figma file. The sample to be used in each section should be copied from the figma component itself along with verification and correct mention of tokens used in the exact format in figma. Do not hallucinate when you refer other design system documentation, add only those things that are a part of the provided Figma file. 
+Use screenshots to visually verify all variants are captured.
+
+---
+
+## Step 2.5 — Research Top Design Systems
+
+**Before writing any documentation**, research how the world's best design systems document this exact component type. This step is mandatory — it ensures the final output matches industry standards rather than being invented from scratch.
+
+### Design systems to research (in parallel)
+
+Use `WebSearch` and `WebFetch` to find and read the official documentation page for this component from each of the following:
+
+| Design System | Company | Search query |
+|---|---|---|
+| Base Web | Uber | `site:base.uber.com [component name]` |
+| Geist | Vercel | `site:vercel.com/geist [component name]` |
+| Atlassian Design System | Atlassian | `site:atlassian.design [component name]` |
+| Polaris | Shopify | `site:polaris.shopify.com/components [component name]` |
+| Carbon | IBM | `site:carbondesignsystem.com/components [component name]` |
+| Material Design | Google | `site:m3.material.io/components [component name]` |
+| Primer | GitHub | `site:primer.style/components [component name]` |
+| Razorpay Blade | Razorpay | `site:blade.razorpay.com [component name]` |
+
+Search at least 4 of these in parallel. Fetch the actual doc page for each match found.
+
+### What to extract from each source
+
+For every design system doc you successfully read, extract:
+
+- **Anatomy** — what structural parts they name and describe
+- **Variants / Types** — how they categorize visual and behavioral variants
+- **States** — which interaction states they document (default, hover, focus, pressed, disabled, loading, error, etc.)
+- **Props** — prop names, types, defaults, descriptions
+- **Design tokens** — token naming patterns and categories (color, spacing, radius, typography)
+- **Size definitions** — height, padding, font size per size tier
+- **Usage guidelines** — "when to use", "when not to use", do/don't patterns
+- **Accessibility** — keyboard interactions, ARIA attributes, focus behavior, screen reader announcements
+- **Platform notes** — mobile vs desktop differences
+- **Related components** — what they link to
+
+### Cross-reference with the Figma component
+
+After research, compare what the top DSes document against what actually exists in the fetched Figma component:
+
+- Only include sections, variants, states, and props that exist in the Figma file
+- Use the real token names and values from the Figma component — not the token names from other DSes
+- Where the Figma component matches a common pattern (e.g. standard button sizes), use the industry-standard descriptions and guidelines from research
+- Where the Figma component differs from the norm, document the actual Figma behavior, not the generic pattern
+- Do not hallucinate props, states, tokens, or variants — if it's not in the Figma file, exclude it
+
+**Rule: research informs structure and language. The Figma component determines the content.**
+
+---
 
 ---
 
