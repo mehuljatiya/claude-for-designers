@@ -1,4 +1,4 @@
-# claude-for-designers
+# Troupe
 
 AI workflows for everyone on the team — designers, developers, and PMs.
 
@@ -9,7 +9,7 @@ One setup command installs 9 slash commands you can use inside Claude Code, righ
 ## Setup
 
 ```bash
-npx claude-for-designers@latest setup
+npx @cashfree/troupe@latest setup
 ```
 
 The wizard (~2 min) handles everything: Claude Code, Figma MCP, browser plugins, and all 9 commands.
@@ -74,7 +74,7 @@ To get the latest commands, delete existing ones and re-run:
 
 ```bash
 rm ~/.claude/commands/{figma,document-component,spec,qa,new-component,document,review,tokens,handoff}.md
-npx claude-for-designers@latest setup
+npx @cashfree/troupe@latest setup
 ```
 
 ---

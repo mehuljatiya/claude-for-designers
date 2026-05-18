@@ -2,7 +2,7 @@
 import { execSync } from 'child_process'
 import chalk from 'chalk'
 
-console.log('\n' + chalk.bold('Claude for Designers') + ' ✦')
+console.log('\n' + chalk.bold('Troupe') + ' ✦')
 console.log(chalk.dim('Available workflows — type any of these inside Claude:\n'))
 console.log('  ' + chalk.cyan('/figma') + ' [url]             Pull a Figma design and build it')
 console.log('  ' + chalk.cyan('/document-component') + ' [url]  Generate full component documentation from Figma')

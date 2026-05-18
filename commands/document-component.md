@@ -1,18 +1,30 @@
 ---
-description: Generates a detailed component documentation markdown file from a Figma design system URL, renders it as HTML for browser review, then offers to push the documentation to a Figma FigJam board. Use when the user shares a Figma link to a component documentation page and asks for docs, a .md file, or a written reference.
+description: Generates a detailed component documentation figma frame in the same page where given component lives. Renders it as HTML for browser review, then pushes documentation as real Figma nodes into the same design file page where the component lives. Use when the user shares a Figma link to a component documentation page and asks for docs, a .md file, or a written reference.
 ---
 
 # Document Component
 
-You are generating developer-ready component documentation from a Figma design system page, rendering it for browser review, and optionally publishing it back into Figma.
+You are generating developer-ready component documentation from a Figma design system page, rendering it for browser review, and pushing it as real Figma nodes into the **same design file page where the component lives**.
+
+> **CRITICAL — Where to push docs:**
+> Always push into the **Figma design file** (figma.com/design/...) on the same page as the component.
+> **NEVER push to FigJam.** The `generate_diagram` MCP tool only supports FigJam — do NOT use it.
+
+---
+
+## Token budget rules — read before starting
+
+These apply to every run. No exceptions.
+
+1. **Research max 4 design systems.** Search at most 4 external sources (not 8). Prioritise: Material Design, Polaris, Carbon, Primer — pick whichever 4 are most relevant to the component type. Fetch only the specific component page, not the entire doc site.
+2. **`excludeScreenshot: true` on data-only sections.** Screenshots are only useful where visual verification matters. Use `excludeScreenshot: true` on Props & Tokens, Accessibility, Usage Guidelines, and Platform sections — code alone is sufficient there. Keep screenshots enabled for Variations and Anatomy, where you need to visually verify all variants and component structure are captured correctly.
+3. **Two `use_figma` calls maximum to build the doc frame.** Call 1: inspect — get all page names, component IDs, node IDs needed. Call 2: build the entire frame. Avoid iterative inspect → partial-build → fix loops.
+4. **One final screenshot only.** Do not screenshot individual sections or tables during building. Screenshot the completed doc frame once at the end.
+5. **Fetch only the sections that contain variant/token data.** If `get_design_context` on the top-level node is too large, fetch only the sections that carry structured data (Variations, Props & Tokens). Skip fetching sections that are plain text (Introduction, Usage Guidelines) — write those from what you can infer.
 
 ---
 
 ## Step 0 — Prerequisites Check
-
-Before doing anything else, verify the required tools are available and ask for all permissions upfront.
-
-### Check Figma MCP
 
 Call `mcp__claude_ai_Figma__whoami`. If it fails or returns an auth error:
 
@@ -28,20 +40,6 @@ Call `mcp__claude_ai_Figma__whoami`. If it fails or returns an auth error:
 
 Stop here — do not proceed until Figma MCP is confirmed working.
 
-### Ask for all permissions upfront
-
-Before running any tools, tell the user exactly what you'll need to do:
-
-> "To generate this documentation I'll need to:
-> - Read your Figma file (Figma MCP)
-> - Create files in the current directory (markdown + HTML)
-> - Open the HTML file in your browser
-> - Optionally open Figma in Chrome to push the docs (Chrome DevTools MCP)
->
-> Approve each tool call as it comes up, or run `/less-permission-prompts` to reduce future prompts."
-
-Do NOT ask one by one as you go — front-load this so the user knows what's coming.
-
 ---
 
 ## Step 1 — Parse the Figma URL
@@ -54,65 +52,19 @@ Extract `fileKey` and `nodeId` from the URL:
 
 ## Step 2 — Fetch the Design Context
 
-Call `get_design_context` on the top-level node. If the result is too large:
+Call `get_design_context` with **`excludeScreenshot: true`** on the top-level node. If the result is too large:
 1. Read the saved output file
 2. Extract all top-level section frame IDs using: `<frame id="..." name="Container" x="32" ...>`
-3. Call `get_design_context` on each section ID **in parallel**
+3. Call `get_design_context` (with `excludeScreenshot: true`) **in parallel** on Variations and Props & Tokens sections only — these carry the structured data you need. Infer Introduction and Usage Guidelines from the component name and token data.
+
+Typical sections:
+- Variations (add actual component snapshots under each variant — see Step 6)
+- Props & Tokens
+- Usage Guidelines — add Do/Don't samples wherever possible
+- Platform — only if min/max width data is explicitly available in the Figma component
 
 Parse React/Tailwind code for design token values (color hex, spacing, radius, typography).
-Use screenshots to visually verify all variants are captured.
-
----
-
-## Step 2.5 — Research Top Design Systems
-
-**Before writing any documentation**, research how the world's best design systems document this exact component type. This step is mandatory — it ensures the final output matches industry standards rather than being invented from scratch.
-
-### Design systems to research (in parallel)
-
-Use `WebSearch` and `WebFetch` to find and read the official documentation page for this component from each of the following:
-
-| Design System | Company | Search query |
-|---|---|---|
-| Base Web | Uber | `site:base.uber.com [component name]` |
-| Geist | Vercel | `site:vercel.com/geist [component name]` |
-| Atlassian Design System | Atlassian | `site:atlassian.design [component name]` |
-| Polaris | Shopify | `site:polaris.shopify.com/components [component name]` |
-| Carbon | IBM | `site:carbondesignsystem.com/components [component name]` |
-| Material Design | Google | `site:m3.material.io/components [component name]` |
-| Primer | GitHub | `site:primer.style/components [component name]` |
-| Razorpay Blade | Razorpay | `site:blade.razorpay.com [component name]` |
-
-Search at least 4 of these in parallel. Fetch the actual doc page for each match found.
-
-### What to extract from each source
-
-For every design system doc you successfully read, extract:
-
-- **Anatomy** — what structural parts they name and describe
-- **Variants / Types** — how they categorize visual and behavioral variants
-- **States** — which interaction states they document (default, hover, focus, pressed, disabled, loading, error, etc.)
-- **Props** — prop names, types, defaults, descriptions
-- **Design tokens** — token naming patterns and categories (color, spacing, radius, typography)
-- **Size definitions** — height, padding, font size per size tier
-- **Usage guidelines** — "when to use", "when not to use", do/don't patterns
-- **Accessibility** — keyboard interactions, ARIA attributes, focus behavior, screen reader announcements
-- **Platform notes** — mobile vs desktop differences
-- **Related components** — what they link to
-
-### Cross-reference with the Figma component
-
-After research, compare what the top DSes document against what actually exists in the fetched Figma component:
-
-- Only include sections, variants, states, and props that exist in the Figma file
-- Use the real token names and values from the Figma component — not the token names from other DSes
-- Where the Figma component matches a common pattern (e.g. standard button sizes), use the industry-standard descriptions and guidelines from research
-- Where the Figma component differs from the norm, document the actual Figma behavior, not the generic pattern
-- Do not hallucinate props, states, tokens, or variants — if it's not in the Figma file, exclude it
-
-**Rule: research informs structure and language. The Figma component determines the content.**
-
----
+**Do not call `get_screenshot` during this step.** A single screenshot at the end (Step 6) is sufficient.
 
 ---
 
@@ -135,15 +87,11 @@ Save as `[component-name].md` in the current directory. Follow this exact struct
 
 ## Anatomy
 
-[Describe each structural part.]
+[Describe each structural part — table only. NO ASCII diagrams.]
 
 | Part | Description |
 |---|---|
 | **[part]** | [description] |
-
-```
-[ ASCII structure diagram ]
-```
 
 ---
 
@@ -157,21 +105,11 @@ Save as `[component-name].md` in the current directory. Follow this exact struct
 |---|---|---|
 | **[Name]** | [appearance] | [context] |
 
----
-
-### [Category — e.g. Size]
-
-| Size | Height | Font Size | Use case |
-|---|---|---|---|
-| **Large** | [px] | [px] | [use case] |
-| **Medium** | [px] | [px] | [use case] |
-| **Small** | [px] | [px] | [use case] |
+[Component snapshots are embedded in the Figma doc — not in the markdown]
 
 ---
 
 ### States
-
-Only document states that exist in the Figma file. Do not add states that are not defined.
 
 | State | Description |
 |---|---|
@@ -179,9 +117,6 @@ Only document states that exist in the Figma file. Do not add states that are no
 | **Hover** | Pointer over element |
 | **Focus** | Keyboard / programmatic focus |
 | **Pressed** | Actively clicked or tapped |
-| **Loading** | Async action in progress |
-| **Error** | Validation or system error |
-| **Read-only** | Visible but not editable |
 | **Disabled** | Non-interactive |
 
 ---
@@ -200,6 +135,8 @@ Only document states that exist in the Figma file. Do not add states that are no
 
 ### Design Tokens — [Variant]
 
+> **Token rule:** Always use token names in every applicable column. Raw values (hex, px, numbers) go alongside the token as a reference — never as the only value. For example: `--sds-size-14` with `14px` in the Value column; `var(--sds-weight-medium) — 500` in typography.
+
 | Property | Token Name | Value |
 |---|---|---|
 | [property] | `--[token]` | `[value]` |
@@ -211,16 +148,16 @@ Only document states that exist in the Figma file. Do not add states that are no
 | Size | Height | H. Padding | V. Padding | Min Width |
 |---|---|---|---|---|
 | Large | `[px]` | `--[token]` ([px]) | `[px]` | `[px]` |
-| Medium | `[px]` | `--[token]` ([px]) | `[px]` | `[px]` |
-| Small | `[px]` | `--[token]` ([px]) | `[px]` | `[px]` |
 
 ---
 
 ### Typography
 
+> **Token rule:** Family, Size, and Weight columns MUST use token names with raw values as reference (e.g. `var(--sds-family-web-font) — DM Sans`). Never output raw values alone. Line Height has no token — raw value only is fine there.
+
 | Type | Style Token | Family | Size | Weight | Line Height |
 |---|---|---|---|---|---|
-| [type] | `[token]` | `var(--[family])` — [name] | `var(--[size])` — [px] | `var(--[weight])` — [value] | [px] |
+| [type] | `[token]` | `var(--[family]) — [name]` | `var(--[size]) — [px]` | `var(--[weight]) — [value]` | [px] |
 
 ---
 
@@ -228,14 +165,6 @@ Only document states that exist in the Figma file. Do not add states that are no
 
 ### When to use
 
-- [bullet]
-- [bullet]
-
----
-
-### When not to use
-
-- [bullet]
 - [bullet]
 
 ---
@@ -252,47 +181,6 @@ Only document states that exist in the Figma file. Do not add states that are no
 
 ---
 
-### Disabled State
-
-- [rule]
-- [rule]
-
----
-
-## Accessibility
-
-### Keyboard Interactions
-
-| Key | Action |
-|---|---|
-| `Tab` | [description] |
-| `Enter` / `Space` | [description] |
-| `Esc` | [description] |
-
----
-
-### ARIA
-
-| Attribute | Value | Notes |
-|---|---|---|
-| `role` | `[role]` | [when/why] |
-| `aria-label` | `[value]` | [when required] |
-| `aria-disabled` | `true/false` | [behavior] |
-
----
-
-### Focus behavior
-
-[Describe focus ring appearance, focus trap behavior if any, and focus restoration after interactions.]
-
----
-
-### Screen reader
-
-[Describe what is announced on interaction — state changes, error messages, dynamic content.]
-
----
-
 ## Platform
 
 ### Desktop
@@ -306,66 +194,29 @@ Only document states that exist in the Figma file. Do not add states that are no
 ### Mobile
 > [Context]
 - [rule]
-
----
-
-## Related Components
-
-| Component | Relationship |
-|---|---|
-| **[Name]** | [When to use it instead / alongside] |
 ```
 
 ---
 
 ## Step 4 — Generate the HTML Preview File
 
-After writing the `.md` file, generate a self-contained `[component-name].html` file in the same directory. The HTML must be production-quality: no external dependencies, fully inline CSS, opens directly in any browser.
+After writing the `.md` file, generate a self-contained `[component-name].html` file in the same directory.
 
 ### HTML requirements
 
-- Font: system-ui or Inter via Google Fonts CDN (single `<link>` tag is fine)
+- Font: primary font from the design system (infer from Figma file; default to Inter if unknown)
 - Color scheme: white background, `#1b1b1b` text, `#2563eb` accent
-- Sticky left sidebar navigation that links to each `##` section
-- Render all markdown tables as styled `<table>` elements
-- Render `✓ Do` blocks in a green-tinted card (`#f0faf4` bg, `#34a853` border)
-- Render `✕ Don't` blocks in a red-tinted card (`#fff4f4` bg, `#ea4335` border)
-- Render inline code and code blocks with a monospace font and `#f5f5f5` background
-- Render design token names in `<code>` tags with the hex value shown as a small color swatch inline
-- Include a fixed header bar with the component name, the design system name (inferred from the Figma file), and a **"Push to Figma →"** button (id=`push-to-figma`, styled in `#1b1b1b` with white text)
-- The Push to Figma button shows a `window.alert('Ready to push to Figma. Run /document-component push in Claude Code.')` on click
-- Section headings (`##`) get an anchor `id` for sidebar nav deep-linking
-- Responsive: sidebar collapses to a top nav on narrow viewports
+- Sticky left sidebar navigation linking to each `##` section
+- All markdown tables as styled `<table>` elements
+- `✓ Do` blocks: green card (`#f0faf4` bg, `#34a853` border)
+- `✕ Don't` blocks: red card (`#fff4f4` bg, `#ea4335` border)
+- Inline code / code blocks: monospace, `#f5f5f5` background
+- Fixed header: component name + design system name + **"Push to Figma →"** button (`id=push-to-figma`)
+- Push button: `alert('Ready to push to Figma. Run /document-component push in Claude Code.')`
+- Section `##` headings get anchor `id` for sidebar deep-linking
+- Responsive: sidebar collapses to top nav on narrow viewports
 
-### HTML template structure
-
-```html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>[Component Name] — [Design System Name]</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <style>
-    /* Reset, layout, sidebar, typography, tables, do/don't cards, code, color swatches, responsive */
-  </style>
-</head>
-<body>
-  <header><!-- component name + "Push to Figma →" button --></header>
-  <div class="layout">
-    <nav class="sidebar"><!-- section links --></nav>
-    <main><!-- all documentation sections --></main>
-  </div>
-  <script>
-    document.getElementById('push-to-figma').onclick = () =>
-      alert('Ready to push to Figma.\nRun /document-component with the "push" argument in Claude Code.');
-  </script>
-</body>
-</html>
-```
-
-After writing the HTML file, open it in the default browser:
+After writing, open:
 ```bash
 open [component-name].html
 ```
@@ -374,48 +225,251 @@ open [component-name].html
 
 ## Step 5 — Ask to Push to Figma
 
-After the browser opens, ask the user:
+> "Documentation is ready and open in your browser. Would you like to push it into the Figma design file?"
 
-> "Documentation is ready and open in your browser. Would you like to push it to Figma as a Figma design file on a browser?"
-
-If the user says **yes** (or passes `push` as an argument), proceed to Step 6.
-If the user says **no**, stop here.
+If yes → Step 6. If no → stop.
 
 ---
 
-## Step 6 — Push Documentation to Figma Design File
+## Step 6 — Push Documentation into the Figma Design File
 
-Use the Chrome DevTools MCP tools to open Figma in the browser and create the documentation as a new page in the design file.
+Build the full documentation as real Figma text/frame nodes using `use_figma` (Plugin API). Place the frame next to the component on the same page.
 
-### Process
+> **Two-call rule:** Use exactly two `use_figma` calls to build the doc frame — no more.
+> - **Call 1 (inspect):** Get page names, component set node IDs, variant IDs, and any existing doc frame IDs. Return them all.
+> - **Call 2 (build):** Build the entire documentation frame in one script using the IDs from Call 1.
+> - Do NOT use a third call to fix or patch. Plan the full structure before Call 2 so it runs clean.
+> - After Call 2, take ONE `get_screenshot` of the completed frame to verify. That is the only screenshot in the entire flow.
 
-1. Use `new_page` or `navigate_page` to open the Figma file URL (`figma.com/design/:fileKey/...`) in the browser — navigate directly to the same page the component link points to
-2. Wait for Figma to fully load using `wait_for`
-3. Use `evaluate_script` to run Figma plugin scripts or interact with the Figma canvas via the browser
-4. If the user has a Figma plugin installed in the browser (e.g. via the Figma desktop app or browser extension), use `click`, `type_text`, and `evaluate_script` to drive it
-5. Place the documentation on the **same page** as the shared component — do not create a new page
-6. Build the documentation layout on canvas using the following structure:
+> **What does NOT work — do not attempt:**
+> - `upload_assets` + curl → image hash returned does NOT render as fills in Plugin API context
+> - Passing base64 image data in `use_figma` code string — 50,000 char limit makes full screenshots impossible
+> - ASCII text diagrams as substitutes for actual component visuals — never add these
+> - `mainComponent.createInstance()` for cloning configured instances — creates fresh defaults with placeholder text, not the actual content
+> - `node.resize(w, h)` to scale instances — only shrinks the bounding box, clips content; text and child elements remain at original size
+> - `node.rescale(factor)` on INSTANCE nodes — same problem; only resizes the bounding box, does not scale content
+> - Setting `relativeTransform` before `appendChild` — resets to 1.0 when node moves between parents
 
-### Layout on canvas
+### Async pattern — CRITICAL
 
-Lay out sections top-to-bottom with clear visual separation. Each section is a labelled frame:
+**Always use top-level `await`** in `use_figma` scripts. Wrapping code in `async function main() { ... }; main()` silently drops all async results — the tool does not await the returned Promise.
 
-1. **Title frame** — Component name + design system name, large bold text
-2. **Introduction** — Text block
-3. **Anatomy** — Labeled parts with ASCII or text diagram
-4. **Variations** — One frame per variation category; each variant as a labeled row
-5. **States** — Row of labeled boxes (only states that exist in Figma)
-6. **Props & Tokens** — Table frames: Props table, Design Tokens per variant, Size Tokens, Typography
-7. **Usage Guidelines** — When to use / When not to use bullets; ✓ Do and ✕ Don't pairs in green/red frames
-8. **Accessibility** — Keyboard table, ARIA table, focus + screen reader notes
-9. **Platform** — Three columns: Desktop | Tablet | Mobile
-10. **Related Components** — Table of related components
+```javascript
+// CORRECT — top-level await
+await figma.loadFontAsync({family: 'Inter', style: 'Regular'});
+const bytes = await inst.exportAsync({...});
 
-### Fallback
+// WRONG — main() returns a Promise the tool never awaits
+async function main() { ... }
+main(); // async results silently dropped
+```
 
-If Figma cannot be driven via Chrome DevTools (e.g. plugin not available, canvas not accessible via script):
-- Tell the user what was attempted and why it failed
-- Offer to provide the documentation as a copyable text block they can paste manually into Figma
+### Pre-flight (always run first)
+
+```javascript
+// 1. Load all fonts — Inter for the doc frame, DM Sans for Cashmere component instances.
+// CRITICAL: component instances use DM Sans; createInstance() throws "unloaded font" at
+// appendChild if these are missing — even if you never write DM Sans text yourself.
+await Promise.all([
+  figma.loadFontAsync({family: 'Inter', style: 'Regular'}),
+  figma.loadFontAsync({family: 'Inter', style: 'Medium'}),
+  figma.loadFontAsync({family: 'Inter', style: 'Semi Bold'}),
+  figma.loadFontAsync({family: 'Inter', style: 'Bold'}),
+  figma.loadFontAsync({family: 'DM Sans', style: 'Regular'}),
+  figma.loadFontAsync({family: 'DM Sans', style: 'Medium'}),
+  figma.loadFontAsync({family: 'DM Sans', style: 'Bold'}),
+]);
+
+// 2. Switch to the correct page — find by the page name from the Figma URL
+const targetPage = figma.root.children.find(p => p.name === 'EXACT PAGE NAME FROM URL');
+// If unsure of the name, list all pages first:
+// figma.root.children.map(p => p.name)
+await figma.setCurrentPageAsync(targetPage);
+
+// 3. Remove existing doc frame (idempotent safety)
+targetPage.children
+  .filter(n => n.name === '[Component] — Documentation')
+  .forEach(n => n.remove());
+```
+
+### Frame structure
+
+Build one top-level VERTICAL auto-layout frame (1400px wide):
+
+```javascript
+const doc = figma.createFrame();
+doc.name = '[Component] — Documentation';
+doc.layoutMode = 'VERTICAL';
+doc.primaryAxisSizingMode = 'AUTO';
+doc.counterAxisSizingMode = 'FIXED';
+doc.resize(1400, 100);
+doc.clipsContent = false;
+doc.fills = [{type:'SOLID', color:{r:1,g:1,b:1}}];
+```
+
+Sections inside (each a VERTICAL auto-layout child at 1400px fixed width):
+1. **Header** — dark bg, component name + design system name
+2. **Introduction** — text block
+3. **Anatomy** — table only (no ASCII)
+4. **Variations** — table + component snapshots (see below)
+5. **Props & Tokens** — props table, tokens table, spacing table, size table, typography table
+6. **Usage Guidelines** — when to use / when not to use bullets + Do/Don't card pairs
+7. **Accessibility** — keyboard table, ARIA table, focus text, screen reader text
+8. **Related Components** — table
+
+### clipsContent rule
+
+**Set `clipsContent = false` on every section frame and the top-level doc frame.**
+
+The exception: preview wrapper frames for component snapshots may use `clipsContent = false` too — since you're using `exportAsync` (see below), there is no overflow to contain.
+
+```javascript
+function noClip(node) {
+  if ('clipsContent' in node) node.clipsContent = false;
+  if ('children' in node) node.children.forEach(noClip);
+}
+noClip(doc);
+```
+
+### Component snapshots — how to embed actual variants
+
+The only reliable way to show a properly scaled component instance is to export it as a PNG and embed it as an image fill. `resize()` and `rescale()` on instances only change the bounding box — they do not scale the content, causing text and layout to clip.
+
+#### Finding the component nodes
+
+```javascript
+// List all children of the page to find component sets
+const allNodes = figma.currentPage.children.map(n =>
+  `${n.name} | ${n.type} | id:${n.id}`
+).join('\n');
+
+// Find the component set by name
+const compSet = figma.currentPage.findOne(n =>
+  n.type === 'COMPONENT_SET' && n.name.includes('YourComponentName')
+);
+
+// Its children are the individual variant components
+compSet.children.forEach(c => console.log(c.name, JSON.stringify(c.variantProperties)));
+```
+
+#### Creating variant snapshots with exportAsync
+
+```javascript
+const SCALE = 0.45; // 0.35–0.5 works well for full-height panels/drawers
+const GAP = 8;
+const LABEL_H = 22;
+
+// Find the variant component (a COMPONENT node, not COMPONENT_SET)
+const variantComp = compSet.children.find(c =>
+  c.variantProperties && Object.values(c.variantProperties).some(v => v === 'VariantName')
+);
+
+// 1. Create instance off-canvas for export
+const inst = variantComp.createInstance();
+figma.currentPage.appendChild(inst);
+inst.x = -99999; inst.y = -99999;
+
+const sw = Math.round(inst.width * SCALE);
+const sh = Math.round(inst.height * SCALE);
+
+// 2. Export at scaled size — this is the ONLY way to get proper visual scale
+const bytes = await inst.exportAsync({
+  format: 'PNG',
+  constraint: {type: 'SCALE', value: SCALE}
+});
+inst.remove();
+
+// 3. Embed as image fill on a rectangle
+const image = figma.createImage(bytes);
+const rect = figma.createRectangle();
+rect.name = 'Preview — VariantName';
+rect.resize(sw, sh);
+rect.fills = [{type: 'IMAGE', imageHash: image.hash, scaleMode: 'FILL'}];
+rect.cornerRadius = 4;
+
+// 4. Wrapper frame with label below
+const wrapper = figma.createFrame();
+wrapper.name = 'Component Preview — VariantName';
+wrapper.layoutMode = 'NONE';
+wrapper.resize(sw, sh + GAP + LABEL_H);
+wrapper.fills = [];
+wrapper.clipsContent = false;
+
+wrapper.appendChild(rect);
+rect.x = 0; rect.y = 0;
+
+const lbl = figma.createText();
+lbl.characters = 'VariantName';
+lbl.fontSize = 12;
+lbl.fontName = {family: 'Inter', style: 'Regular'};
+lbl.fills = [{type: 'SOLID', color: {r: 0.6, g: 0.6, b: 0.6}}];
+wrapper.appendChild(lbl);
+lbl.x = 0; lbl.y = sh + GAP;
+```
+
+#### Laying out multiple variant previews side by side
+
+```javascript
+const PADDING = 24;
+const BETWEEN_GAP = 16;
+
+// Build all wrappers (await each exportAsync separately — top-level await)
+const bytes1 = await inst1.exportAsync({format: 'PNG', constraint: {type: 'SCALE', value: SCALE}});
+// ... build wrap1 ...
+
+const bytes2 = await inst2.exportAsync({format: 'PNG', constraint: {type: 'SCALE', value: SCALE}});
+// ... build wrap2 ...
+
+// Add to preview row with explicit positioning
+previewRow.appendChild(wrap1);
+wrap1.x = PADDING; wrap1.y = PADDING;
+
+previewRow.appendChild(wrap2);
+wrap2.x = PADDING + wrap1.width + BETWEEN_GAP; wrap2.y = PADDING;
+
+const totalW = PADDING + wrap1.width + BETWEEN_GAP + wrap2.width + PADDING;
+const totalH = PADDING + Math.max(wrap1.height, wrap2.height) + PADDING;
+previewRow.resize(totalW, totalH);
+previewRow.clipsContent = false;
+```
+
+#### Cloning configured sub-item instances (for individual states/types within a component)
+
+Use `.clone()` — NOT `mainComponent.createInstance()`. Clone preserves actual overrides (labels, icons, toggle states):
+
+```javascript
+const configuredItem = figma.getNodeById('<INSTANCE_NODE_ID>'); // an INSTANCE node
+const clone = configuredItem.clone();
+myContainer.appendChild(clone);
+```
+
+#### Inserting snapshots at the right position inside a section
+
+Sections use `insertChild(index, child)`. Track index shifts — each insertion bumps subsequent indices by 1:
+
+```javascript
+let tableIdx = varSection.children.findIndex(c => c.name === 'table');
+varSection.insertChild(tableIdx + 1, snapshotRow);
+
+// For the SECOND table (index shifted +1 after first insertion)
+let secondTableIdx = varSection.children.findIndex((c, i) => c.name === 'table' && i > tableIdx + 1);
+varSection.insertChild(secondTableIdx + 1, secondSnapshotRow);
+```
+
+### Positioning the doc frame
+
+Place the doc frame to the right of the component with a gap:
+
+```javascript
+// Find the bounding box of the component on the page
+const comp = figma.currentPage.findOne(n =>
+  (n.type === 'COMPONENT_SET' || n.type === 'FRAME') && n.name.includes('YourComponentName')
+);
+doc.x = comp.x + comp.width + 120;
+doc.y = comp.y;
+targetPage.appendChild(doc);
+figma.viewport.scrollAndZoomIntoView([doc]);
+```
 
 ---
 
@@ -423,30 +477,29 @@ If Figma cannot be driven via Chrome DevTools (e.g. plugin not available, canvas
 
 Before finishing, verify:
 
-- [ ] `.md` file has no placeholder text
+- [ ] `.md` file has no placeholder text and no ASCII diagrams
 - [ ] Every prop has type, default, and description
 - [ ] All design token names start with `--` and have hex/px values
 - [ ] Each usage guideline has both a ✓ Do and ✕ Don't
-- [ ] "When not to use" section is present
-- [ ] States table only includes states defined in Figma — no invented states
-- [ ] Accessibility section present for interactive components (keyboard table, ARIA table, focus + screen reader notes)
-- [ ] Related Components section present
-- [ ] Platform covers Desktop, Tablet, Mobile
 - [ ] `.html` file opens correctly in the browser
 - [ ] HTML sidebar links to all `##` sections
 - [ ] Do/Don't cards render in correct green/red colors
-- [ ] "Push to Figma →" button is visible in the header
-- [ ] Figma design file page (if pushed) contains all sections in correct order
+- [ ] "Push to Figma →" button visible in header
+- [ ] Figma doc frame: no ASCII diagrams anywhere
+- [ ] Figma doc frame: `clipsContent = false` on all section frames (run `noClip(doc)` at the end)
+- [ ] Figma doc frame: actual component snapshots in Variations section (not placeholder text, not clipped)
+- [ ] Figma doc frame: snapshots built with `exportAsync` + image fills (not `resize()`/`rescale()`)
+- [ ] Figma doc frame: positioned on same page as component, to the right with 120px gap
+- [ ] `figma.viewport.scrollAndZoomIntoView([doc])` called at end so user sees it
+- [ ] All `use_figma` scripts use top-level `await` (not `async function main() { ... }; main()`)
 
 ---
 
 ## Notes
 
 - Adapt section names to match whatever the Figma doc uses — not all components have every section
-- Accessibility section is required for all interactive components (buttons, inputs, modals, etc.); omit only for purely decorative or static components
-- Related Components: include only components that exist in the same design system — do not invent component names
-- Additional sections (Changelog, Figma usage notes) go after Related Components in both MD and HTML
-- Extract hex values from Tailwind classes: `bg-[#hex]`, `text-[#hex]`, `border-[#hex]`
-- Token pattern varies by design system — infer from the Figma file (e.g. `--sds-*`, `--ds-*`, `--color-*`); do not assume a fixed prefix
+- Additional sections (Accessibility, Changelog, Figma usage) go after Platform
+- Token naming pattern varies by design system — infer from the Figma file (e.g. `--sds-*`, `--ds-*`, `--color-*`); do not assume a fixed prefix
 - If the node is a component (not a doc page), fetch individual variant states in parallel to extract tokens
 - The HTML file is the primary review artifact — make it polished enough to share with a design team
+- To find the correct page name for `setCurrentPageAsync`, list `figma.root.children.map(p => p.name)` first rather than guessing

@@ -7,14 +7,14 @@ if (!command || command === 'setup') {
   runSetup()
 } else if (command === '--help' || command === '-h') {
   console.log(`
-claude-for-designers
+@cashfree/troupe
 
 Usage:
-  npx claude-for-designers setup   Set up Claude for the first time
-  design                           Launch Claude with design workflows
+  npx @cashfree/troupe setup   Set up Troupe for the first time
+  design                       Launch Claude with design workflows
 `)
 } else {
   console.log(`Unknown command: ${command}`)
-  console.log('Run: npx claude-for-designers setup')
+  console.log('Run: npx @cashfree/troupe setup')
   process.exit(1)
 }
